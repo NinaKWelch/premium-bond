@@ -13,7 +13,7 @@ import SimpleCalculator from './components/SimpleCalculator';
 const App = () => (
   <BondsProvider>
     <Header />
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container component="main" maxWidth="md" sx={{ py: 4 }}>
       <PrintHeader />
       <Stack spacing={4}>
         <SimpleCalculator />
