@@ -1,8 +1,11 @@
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import type { TSimpleFormValues } from '../../types/bonds';
+
+import type { TSimpleFormValues } from '#types/bonds';
+import { simpleFormSchema } from '#schemas/bonds.schemas';
 
 interface ISimpleCalculatorFormProps {
   defaultMonth: string
@@ -15,12 +18,13 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
     register,
     handleSubmit,
     formState: { errors, isValid },
-  } = useForm<TSimpleFormValues>({
+  } = useForm({
+    resolver: zodResolver(simpleFormSchema),
     mode: 'onChange',
     defaultValues: { firstInvestmentMonth: defaultMonth },
   });
 
-  const monthField = register('firstInvestmentMonth', { required: 'Month is required' });
+  const monthField = register('firstInvestmentMonth');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -50,11 +54,7 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
           error={!!errors.totalInvested}
           helperText={errors.totalInvested?.message}
           sx={{ flex: { sm: 1 } }}
-          {...register('totalInvested', {
-            required: 'Total invested is required',
-            valueAsNumber: true,
-            min: { value: 1, message: 'Must be at least £1' },
-          })}
+          {...register('totalInvested')}
         />
 
         <TextField
@@ -64,11 +64,7 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
           error={!!errors.totalPrizes}
           helperText={errors.totalPrizes?.message}
           sx={{ flex: { sm: 1 } }}
-          {...register('totalPrizes', {
-            required: 'Total prizes is required',
-            valueAsNumber: true,
-            min: { value: 0, message: 'Cannot be negative' },
-          })}
+          {...register('totalPrizes')}
         />
 
         <Button

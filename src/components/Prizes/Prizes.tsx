@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import PrizeForm from './PrizeForm';
 
-import type { TPrizeFormValues } from '../../types/bonds';
+import type { TPrizeFormValues } from '#types/bonds';
 
 interface IPrizesProps {
   onSubmit: (data: TPrizeFormValues) => Promise<void>

@@ -26,7 +26,7 @@ import {
   updatePrize,
   deletePrize,
   calculate,
-} from '../../api/bonds';
+} from '#api/bonds';
 
 const mockGetTransactions = vi.mocked(getTransactions);
 const mockGetPrizes = vi.mocked(getPrizes);

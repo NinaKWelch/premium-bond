@@ -1,3 +1,16 @@
+import type { z } from 'zod';
+import type {
+  transactionFormSchema,
+  prizeFormSchema,
+  simpleFormSchema,
+} from '#schemas/bonds.schemas';
+
+export type TTransactionFormValues = z.infer<typeof transactionFormSchema>
+
+export type TPrizeFormValues = z.infer<typeof prizeFormSchema>
+
+export type TSimpleFormValues = z.infer<typeof simpleFormSchema>
+
 export type TTransaction = {
   id: string
   date: string
@@ -19,29 +32,9 @@ export type TActivityItem =
   | (TTransaction & { itemType: 'transaction' })
   | (TPrize & { itemType: 'prize' })
 
-export type TSimpleFormValues = {
-  firstInvestmentMonth: string
-  totalInvested: number
-  totalPrizes: number
-}
-
 export type TSimpleResult = {
   years: number
   effectiveRatePct: number
-}
-
-export type TTransactionFormValues = {
-  month: string
-  year: string
-  amount: number
-  type: 'deposit' | 'withdrawal'
-}
-
-export type TPrizeFormValues = {
-  month: string
-  year: string
-  amount: number
-  reinvested: boolean
 }
 
 export type TYearResult = {

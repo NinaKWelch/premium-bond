@@ -19,7 +19,19 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "#api/*": ["./src/api/*"],
+      "#components/*": ["./src/components/*"],
+      "#constants": ["./src/constants"],
+      "#context/*": ["./src/context/*"],
+      "#schemas/*": ["./src/schemas/*"],
+      "#types/*": ["./src/types/*"],
+      "#utils/*": ["./src/utils/*"]
+    }
   },
   "include": ["src"]
 }

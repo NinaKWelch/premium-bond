@@ -1,4 +1,5 @@
 import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -7,13 +8,14 @@ import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import type { TTransactionFormValues, TNewTransaction } from '../../types/bonds';
-import { MONTHS, currentYear, toYearMonth } from '../../utils/date';
+import type { TTransactionFormValues, TNewTransaction } from '#types/bonds';
+import { transactionFormSchema } from '#schemas/bonds.schemas';
+import { MONTHS, currentYear, toYearMonth } from '#utils/date';
 import {
   PREMIUM_BONDS_LAUNCH_YEAR,
   MIN_TRANSACTION_AMOUNT,
   MAX_TRANSACTION_AMOUNT,
-} from '../../constants';
+} from '#constants';
 
 interface ITransactionFormProps {
   onSubmit: (data: TNewTransaction) => Promise<void>
@@ -26,9 +28,10 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<TTransactionFormValues>({
+  } = useForm({
+    resolver: zodResolver(transactionFormSchema),
     mode: 'onChange',
-    defaultValues: { type: 'deposit', month: '', year: '' },
+    defaultValues: { type: 'deposit' as const, month: '', year: '' },
   });
 
   const submit = async ({ month, year, amount, type }: TTransactionFormValues) => {
@@ -43,7 +46,6 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
           <Controller
             name="month"
             control={control}
-            rules={{ required: 'Month is required' }}
             render={({ field }) => (
               <FormControl fullWidth error={!!errors.month}>
                 <InputLabel id="txn-month-label">Month</InputLabel>
@@ -67,14 +69,7 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
             }}
             error={!!errors.year}
             helperText={errors.year?.message}
-            {...register('year', {
-              required: 'Year is required',
-              min: {
-                value: PREMIUM_BONDS_LAUNCH_YEAR,
-                message: `Year must be ${PREMIUM_BONDS_LAUNCH_YEAR} or later`,
-              },
-              max: { value: currentYear(), message: `Year must be ${currentYear()} or earlier` },
-            })}
+            {...register('year')}
           />
         </Stack>
 
@@ -87,18 +82,7 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
           }}
           error={!!errors.amount}
           helperText={errors.amount?.message}
-          {...register('amount', {
-            required: 'Amount is required',
-            valueAsNumber: true,
-            min: {
-              value: MIN_TRANSACTION_AMOUNT,
-              message: `Amount must be at least £${MIN_TRANSACTION_AMOUNT}`,
-            },
-            max: {
-              value: MAX_TRANSACTION_AMOUNT,
-              message: `Maximum holding is £${MAX_TRANSACTION_AMOUNT.toLocaleString()}`,
-            },
-          })}
+          {...register('amount')}
         />
 
         <Controller

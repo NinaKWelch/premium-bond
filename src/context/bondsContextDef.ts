@@ -6,7 +6,7 @@ import type {
   TTransaction,
   TPrize,
   TPrizeFormValues,
-} from '../types/bonds';
+} from '#types/bonds';
 
 export interface IBondsContext {
   transactions: TTransaction[]

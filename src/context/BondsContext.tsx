@@ -9,7 +9,7 @@ import {
   updatePrize,
   deletePrize,
   calculate,
-} from '../api/bonds';
+} from '#api/bonds';
 import type {
   TTransaction,
   TPrize,
@@ -17,8 +17,8 @@ import type {
   TNewTransaction,
   TNewPrize,
   TPrizeFormValues,
-} from '../types/bonds';
-import { toYearMonth } from '../utils/date';
+} from '#types/bonds';
+import { toYearMonth } from '#utils/date';
 import BondsContext from './bondsContextDef';
 
 export const BondsProvider = ({ children }: { children: React.ReactNode }) => {

@@ -1,4 +1,4 @@
-import type { TSimpleResult } from '../types/bonds';
+import type { TSimpleResult } from '#types/bonds';
 
 /**
  * Estimates the effective annual rate of return from Premium Bond prizes.

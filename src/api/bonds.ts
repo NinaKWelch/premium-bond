@@ -1,6 +1,6 @@
-import type { TTransaction, TPrize, TNewTransaction, TNewPrize, TResults } from '../types/bonds';
+import type { TTransaction, TPrize, TNewTransaction, TNewPrize, TResults } from '#types/bonds';
 
-export type { TTransaction, TPrize, TNewTransaction, TNewPrize, TResults } from '../types/bonds';
+export type { TTransaction, TPrize, TNewTransaction, TNewPrize, TResults } from '#types/bonds';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 

@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import type { TNewTransaction } from '../../types/bonds';
+import type { TNewTransaction } from '#types/bonds';
 import TransactionForm from './TransactionForm';
 
 interface ITransactionsProps {

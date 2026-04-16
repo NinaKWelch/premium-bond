@@ -1,6 +1,6 @@
 import Typography from '@mui/material/Typography';
-import { NS_AND_I_PRIZE_FUND_RATE_PCT } from '../../constants';
-import type { TSimpleResult } from '../../types/bonds';
+import { NS_AND_I_PRIZE_FUND_RATE_PCT } from '#constants';
+import type { TSimpleResult } from '#types/bonds';
 
 interface ISimpleCalculatorResultProps {
   result: TSimpleResult

@@ -1,8 +1,8 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import type { TTransaction, TPrize } from '../../types/bonds';
-import downloadFile from '../../utils/downloadFile';
+import type { TTransaction, TPrize } from '#types/bonds';
+import downloadFile from '#utils/downloadFile';
 
 interface IExportProps {
   transactions: TTransaction[]
@@ -35,9 +35,9 @@ const Export = ({ transactions, prizes, onPrint }: IExportProps) => {
       }}
     >
       <Typography variant="body2" color="text.secondary">
-        Export your data for use in a spreadsheet or for your records.
+        Export your data for use in a spreadsheet or save your results as a PDF.
       </Typography>
-      <Stack direction="row" spacing={2} sx={{ flexShrink: 0 }}>
+      <Stack direction="row" spacing={2} sx={{ flexShrink: 0, ml: 3 }}>
         <Button variant="outlined" size="small" onClick={handleCsv}>
           Download CSV
         </Button>

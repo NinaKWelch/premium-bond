@@ -32,15 +32,15 @@ import type {
   TNewTransaction,
   TNewPrize,
   TTransactionFormValues,
-} from '../../types/bonds';
-import { MONTHS, currentYear, toYearMonth, fromYearMonth, formatYearMonth } from '../../utils/date';
+} from '#types/bonds';
+import { MONTHS, currentYear, toYearMonth, fromYearMonth, formatYearMonth } from '#utils/date';
 import {
   PREMIUM_BONDS_LAUNCH_YEAR,
   MIN_TRANSACTION_AMOUNT,
   MAX_TRANSACTION_AMOUNT,
   MIN_PRIZE_AMOUNT,
   MAX_PRIZE_AMOUNT,
-} from '../../constants';
+} from '#constants';
 
 interface IActivityListProps {
   transactions: TTransaction[]
@@ -177,7 +177,9 @@ const ActivityList = ({
         {items.map((item) => {
           const itemKind = 'type' in item ? item.type : 'prize';
           const isWithdrawal = itemKind === 'withdrawal';
-          const formattedAmount = `${isWithdrawal ? '-' : ''}${item.amount.toFixed(2)}`;
+          const formattedAmount = isWithdrawal
+            ? `-£${item.amount.toFixed(2)}`
+            : `£${item.amount.toFixed(2)}`;
 
           return (
             <Box
@@ -238,7 +240,9 @@ const ActivityList = ({
           {items.map((item) => {
             const itemKind = 'type' in item ? item.type : 'prize';
             const isWithdrawal = itemKind === 'withdrawal';
-            const formattedAmount = `${isWithdrawal ? '-' : ''}${item.amount.toFixed(2)}`;
+            const formattedAmount = isWithdrawal
+              ? `-£${item.amount.toFixed(2)}`
+              : `£${item.amount.toFixed(2)}`;
 
             return (
               <TableRow key={`${item.itemType}-${item.id}`}>

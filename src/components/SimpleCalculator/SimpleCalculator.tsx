@@ -2,9 +2,9 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import type { TSimpleFormValues, TSimpleResult } from '../../types/bonds';
-import { lastMonth } from '../../utils/date';
-import { estimateEffectiveRate } from '../../utils/rateEstimator';
+import type { TSimpleFormValues, TSimpleResult } from '#types/bonds';
+import { lastMonth } from '#utils/date';
+import { estimateEffectiveRate } from '#utils/rateEstimator';
 import SimpleCalculatorForm from './SimpleCalculatorForm';
 import SimpleCalculatorResult from './SimpleCalculatorResult';
 
