@@ -1,52 +1,46 @@
-import { useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControl from '@mui/material/FormControl'
-import IconButton from '@mui/material/IconButton'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
-import Stack from '@mui/material/Stack'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import {
   DeleteOutlined as DeleteOutlineIcon,
   EditOutlined as EditOutlinedIcon,
-} from '@mui/icons-material'
+} from '@mui/icons-material';
 import type {
   TTransaction,
   TPrize,
   TActivityItem,
   TNewTransaction,
   TNewPrize,
-} from '../../types/bonds'
-import { MONTHS, currentYear, toYearMonth, fromYearMonth, formatYearMonth } from '../../utils/date'
+  TTransactionFormValues,
+} from '../../types/bonds';
+import { MONTHS, currentYear, toYearMonth, fromYearMonth, formatYearMonth } from '../../utils/date';
 import {
   PREMIUM_BONDS_LAUNCH_YEAR,
   MIN_TRANSACTION_AMOUNT,
   MAX_TRANSACTION_AMOUNT,
   MIN_PRIZE_AMOUNT,
   MAX_PRIZE_AMOUNT,
-} from '../../constants'
-
-type TEditFormValues = {
-  month: string
-  year: string
-  amount: number
-  type: 'deposit' | 'withdrawal'
-}
+} from '../../constants';
 
 interface IActivityListProps {
   transactions: TTransaction[]
@@ -58,16 +52,20 @@ interface IActivityListProps {
 }
 
 const chipColor = (type: TTransaction['type'] | 'prize') => {
-  if (type === 'deposit') return 'success' as const
-  if (type === 'withdrawal') return 'warning' as const
-  return 'info' as const
-}
+  if (type === 'deposit') {
+    return 'success' as const;
+  }
+  if (type === 'withdrawal') {
+    return 'warning' as const;
+  }
+  return 'info' as const;
+};
 
 const borderColor = {
   deposit: '#4caf50',
   prize: '#0288d1',
   withdrawal: '#d32f2f',
-}
+};
 
 const ActionButtons = ({
   onEdit,
@@ -104,7 +102,7 @@ const ActionButtons = ({
       <DeleteOutlineIcon fontSize="small" />
     </IconButton>
   </Stack>
-)
+);
 
 const ActivityList = ({
   transactions,
@@ -114,8 +112,8 @@ const ActivityList = ({
   onUpdatePrize,
   onDeletePrize,
 }: IActivityListProps) => {
-  const [deleteTarget, setDeleteTarget] = useState<TActivityItem | null>(null)
-  const [editTarget, setEditTarget] = useState<TActivityItem | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<TActivityItem | null>(null);
+  const [editTarget, setEditTarget] = useState<TActivityItem | null>(null);
 
   const {
     register,
@@ -123,56 +121,63 @@ const ActivityList = ({
     handleSubmit,
     reset,
     formState: { errors, isValid },
-  } = useForm<TEditFormValues>({ mode: 'onChange' })
+  } = useForm<TTransactionFormValues>({
+    mode: 'onChange',
+    defaultValues: { month: '', year: '', type: 'deposit' },
+  });
 
   const items: TActivityItem[] = [
     ...transactions.map((t) => ({ ...t, itemType: 'transaction' as const })),
     ...prizes.map((p) => ({ ...p, itemType: 'prize' as const })),
-  ].sort((a, b) => a.date.localeCompare(b.date))
+  ].sort((a, b) => a.date.localeCompare(b.date));
 
   const openEdit = (item: TActivityItem) => {
-    setEditTarget(item)
-    const { year, month } = fromYearMonth(item.date)
-    reset({ year, month, amount: item.amount, ...('type' in item ? { type: item.type } : {}) })
-  }
+    setEditTarget(item);
+    const { year, month } = fromYearMonth(item.date);
+    reset({ year, month, amount: item.amount, ...('type' in item ? { type: item.type } : {}) });
+  };
 
-  const closeEdit = () => setEditTarget(null)
+  const closeEdit = () => setEditTarget(null);
 
-  const handleEditSubmit = async ({ month, year, amount, type }: TEditFormValues) => {
-    if (!editTarget) return
-    const date = toYearMonth(year, month)
-    if (editTarget.itemType === 'transaction') {
-      await onUpdateTransaction(editTarget.id, { date, amount, type })
-    } else {
-      await onUpdatePrize(editTarget.id, { date, amount })
+  const handleEditSubmit = async ({ month, year, amount, type }: TTransactionFormValues) => {
+    if (!editTarget) {
+      return;
     }
-    closeEdit()
-  }
+    const date = toYearMonth(year, month);
+    if (editTarget.itemType === 'transaction') {
+      await onUpdateTransaction(editTarget.id, { date, amount, type });
+    } else {
+      await onUpdatePrize(editTarget.id, { date, amount });
+    }
+    closeEdit();
+  };
 
   const handleDeleteConfirm = async () => {
-    if (!deleteTarget) return
-    if (deleteTarget.itemType === 'transaction') {
-      await onDeleteTransaction(deleteTarget.id)
-    } else {
-      await onDeletePrize(deleteTarget.id)
+    if (!deleteTarget) {
+      return;
     }
-    setDeleteTarget(null)
-  }
+    if (deleteTarget.itemType === 'transaction') {
+      await onDeleteTransaction(deleteTarget.id);
+    } else {
+      await onDeletePrize(deleteTarget.id);
+    }
+    setDeleteTarget(null);
+  };
 
   if (items.length === 0) {
-    return <Typography color="text.secondary">No activity yet.</Typography>
+    return <Typography color="text.secondary">No activity yet.</Typography>;
   }
 
-  const isTransaction = editTarget?.itemType === 'transaction'
+  const isTransaction = editTarget?.itemType === 'transaction';
 
   return (
     <>
       {/* Mobile: card list */}
       <Stack spacing={1.5} sx={{ display: { xs: 'flex', sm: 'none' } }}>
         {items.map((item) => {
-          const itemKind = 'type' in item ? item.type : 'prize'
-          const isWithdrawal = itemKind === 'withdrawal'
-          const formattedAmount = `${isWithdrawal ? '-' : ''}${item.amount.toFixed(2)}`
+          const itemKind = 'type' in item ? item.type : 'prize';
+          const isWithdrawal = itemKind === 'withdrawal';
+          const formattedAmount = `${isWithdrawal ? '-' : ''}${item.amount.toFixed(2)}`;
 
           return (
             <Box
@@ -209,7 +214,7 @@ const ActivityList = ({
                 mobileWhiteBg
               />
             </Box>
-          )
+          );
         })}
       </Stack>
 
@@ -231,9 +236,9 @@ const ActivityList = ({
         </TableHead>
         <TableBody>
           {items.map((item) => {
-            const itemKind = 'type' in item ? item.type : 'prize'
-            const isWithdrawal = itemKind === 'withdrawal'
-            const formattedAmount = `${isWithdrawal ? '-' : ''}${item.amount.toFixed(2)}`
+            const itemKind = 'type' in item ? item.type : 'prize';
+            const isWithdrawal = itemKind === 'withdrawal';
+            const formattedAmount = `${isWithdrawal ? '-' : ''}${item.amount.toFixed(2)}`;
 
             return (
               <TableRow key={`${item.itemType}-${item.id}`}>
@@ -256,7 +261,7 @@ const ActivityList = ({
                   />
                 </TableCell>
               </TableRow>
-            )
+            );
           })}
         </TableBody>
       </Table>
@@ -293,12 +298,7 @@ const ActivityList = ({
                 render={({ field }) => (
                   <FormControl fullWidth error={!!errors.month}>
                     <InputLabel id="edit-month-label">Month</InputLabel>
-                    <Select
-                      labelId="edit-month-label"
-                      label="Month"
-                      {...field}
-                      value={field.value ?? ''}
-                    >
+                    <Select labelId="edit-month-label" label="Month" {...field} value={field.value}>
                       {MONTHS.map((m) => (
                         <MenuItem key={m.value} value={m.value}>
                           {m.label}
@@ -371,12 +371,7 @@ const ActivityList = ({
                 render={({ field }) => (
                   <FormControl fullWidth>
                     <InputLabel id="edit-type-label">Type</InputLabel>
-                    <Select
-                      labelId="edit-type-label"
-                      label="Type"
-                      {...field}
-                      value={field.value ?? 'deposit'}
-                    >
+                    <Select labelId="edit-type-label" label="Type" {...field} value={field.value}>
                       <MenuItem value="deposit">Deposit</MenuItem>
                       <MenuItem value="withdrawal">Withdrawal</MenuItem>
                     </Select>
@@ -394,7 +389,7 @@ const ActivityList = ({
         </DialogActions>
       </Dialog>
     </>
-  )
-}
+  );
+};
 
-export default ActivityList
+export default ActivityList;

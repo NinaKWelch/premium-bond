@@ -1,9 +1,9 @@
-import Alert from '@mui/material/Alert'
-import Snackbar from '@mui/material/Snackbar'
-import useBonds from '../../context/useBonds'
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import useBonds from '../../context/useBonds';
 
 const ErrorNotification = () => {
-  const { errorMessage, clearError } = useBonds()
+  const { errorMessage, clearError } = useBonds();
 
   return (
     <>
@@ -33,7 +33,7 @@ const ErrorNotification = () => {
         </Alert>
       </Snackbar>
     </>
-  )
-}
+  );
+};
 
-export default ErrorNotification
+export default ErrorNotification;

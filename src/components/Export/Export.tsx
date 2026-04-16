@@ -1,8 +1,8 @@
-import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import type { TTransaction, TPrize } from '../../types/bonds'
-import downloadFile from '../../utils/downloadFile'
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import type { TTransaction, TPrize } from '../../types/bonds';
+import downloadFile from '../../utils/downloadFile';
 
 interface IExportProps {
   transactions: TTransaction[]
@@ -19,10 +19,10 @@ const Export = ({ transactions, prizes, onPrint }: IExportProps) => {
     ]
       .sort((a, b) => a[0].localeCompare(b[0]))
       .map((row) => row.join(','))
-      .join('\n')
+      .join('\n');
 
-    downloadFile(rows, 'premium-bonds.csv', 'text/csv')
-  }
+    downloadFile(rows, 'premium-bonds.csv', 'text/csv');
+  };
 
   return (
     <Stack
@@ -46,7 +46,7 @@ const Export = ({ transactions, prizes, onPrint }: IExportProps) => {
         </Button>
       </Stack>
     </Stack>
-  )
-}
+  );
+};
 
-export default Export
+export default Export;

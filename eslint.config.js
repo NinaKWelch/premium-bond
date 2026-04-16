@@ -11,13 +11,39 @@ export default defineConfig([
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
-      tseslint.configs.recommended,
+      tseslint.configs.strictTypeChecked,
+      tseslint.configs.stylisticTypeChecked,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      'curly': ['error', 'all'],
+      'semi': ['error', 'always'],
+      // Numbers are safe in template literals; unions of string|number are fine too
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      // Project uses `type` consistently; some types (unions) cannot be interfaces
+      '@typescript-eslint/consistent-type-definitions': 'off',
+      // Too noisy for standard React event-handler patterns
+      '@typescript-eslint/no-confusing-void-expression': 'off',
+      // React ignores event-handler return values; async handlers on JSX attributes are safe
+      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
+    },
+  },
+  {
+    files: ['**/__tests__/**', '**/*.test.*'],
+    rules: {
+      // Empty mock functions (vi.fn(), async () => {}) are idiomatic in tests
+      '@typescript-eslint/no-empty-function': 'off',
+      // Passing static methods to `expect(...).toHaveBeenCalledWith` is safe in tests
+      '@typescript-eslint/unbound-method': 'off',
     },
   },
 ])

@@ -1,7 +1,7 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import type { TNewTransaction } from '../../types/bonds'
-import TransactionForm from './TransactionForm'
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { TNewTransaction } from '../../types/bonds';
+import TransactionForm from './TransactionForm';
 
 interface ITransactionsProps {
   onSubmit: (data: TNewTransaction) => Promise<void>
@@ -14,6 +14,6 @@ const Transactions = ({ onSubmit }: ITransactionsProps) => (
     </Typography>
     <TransactionForm onSubmit={onSubmit} />
   </Box>
-)
+);
 
-export default Transactions
+export default Transactions;

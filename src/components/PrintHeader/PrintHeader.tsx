@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 const PrintHeader = () => (
   <Box className="print-title" sx={{ display: 'none', mb: 3 }}>
@@ -11,6 +11,6 @@ const PrintHeader = () => (
       are actually earning.
     </Typography>
   </Box>
-)
+);
 
-export default PrintHeader
+export default PrintHeader;

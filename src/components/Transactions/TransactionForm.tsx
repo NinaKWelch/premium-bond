@@ -1,19 +1,19 @@
-import { useForm, Controller } from 'react-hook-form'
-import Button from '@mui/material/Button'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
-import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
+import { useForm, Controller } from 'react-hook-form';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 
-import type { TTransactionFormValues, TNewTransaction } from '../../types/bonds'
-import { MONTHS, currentYear, toYearMonth } from '../../utils/date'
+import type { TTransactionFormValues, TNewTransaction } from '../../types/bonds';
+import { MONTHS, currentYear, toYearMonth } from '../../utils/date';
 import {
   PREMIUM_BONDS_LAUNCH_YEAR,
   MIN_TRANSACTION_AMOUNT,
   MAX_TRANSACTION_AMOUNT,
-} from '../../constants'
+} from '../../constants';
 
 interface ITransactionFormProps {
   onSubmit: (data: TNewTransaction) => Promise<void>
@@ -26,12 +26,15 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<TTransactionFormValues>({ mode: 'onChange', defaultValues: { type: 'deposit' } })
+  } = useForm<TTransactionFormValues>({
+    mode: 'onChange',
+    defaultValues: { type: 'deposit', month: '', year: '' },
+  });
 
   const submit = async ({ month, year, amount, type }: TTransactionFormValues) => {
-    await onSubmit({ date: toYearMonth(year, month), amount, type })
-    reset()
-  }
+    await onSubmit({ date: toYearMonth(year, month), amount, type });
+    reset();
+  };
 
   return (
     <form onSubmit={handleSubmit(submit)} noValidate>
@@ -44,12 +47,7 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
             render={({ field }) => (
               <FormControl fullWidth error={!!errors.month}>
                 <InputLabel id="txn-month-label">Month</InputLabel>
-                <Select
-                  labelId="txn-month-label"
-                  label="Month"
-                  {...field}
-                  value={field.value ?? ''}
-                >
+                <Select labelId="txn-month-label" label="Month" {...field} value={field.value}>
                   {MONTHS.map((m) => (
                     <MenuItem key={m.value} value={m.value}>
                       {m.label}
@@ -129,7 +127,7 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
         </Button>
       </Stack>
     </form>
-  )
-}
+  );
+};
 
-export default TransactionForm
+export default TransactionForm;

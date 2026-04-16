@@ -1,8 +1,8 @@
-import { useForm } from 'react-hook-form'
-import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
-import type { TSimpleFormValues } from '../../types/bonds'
+import { useForm } from 'react-hook-form';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import type { TSimpleFormValues } from '../../types/bonds';
 
 interface ISimpleCalculatorFormProps {
   defaultMonth: string
@@ -18,9 +18,9 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
   } = useForm<TSimpleFormValues>({
     mode: 'onChange',
     defaultValues: { firstInvestmentMonth: defaultMonth },
-  })
+  });
 
-  const monthField = register('firstInvestmentMonth', { required: 'Month is required' })
+  const monthField = register('firstInvestmentMonth', { required: 'Month is required' });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -38,8 +38,8 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
           sx={{ flex: { sm: 1 } }}
           {...monthField}
           onChange={(e) => {
-            onChange()
-            monthField.onChange(e)
+            onChange();
+            void monthField.onChange(e);
           }}
         />
 
@@ -81,7 +81,7 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
         </Button>
       </Stack>
     </form>
-  )
-}
+  );
+};
 
-export default SimpleCalculatorForm
+export default SimpleCalculatorForm;

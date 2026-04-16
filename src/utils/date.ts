@@ -11,22 +11,22 @@ export const MONTHS = [
   { value: '10', label: 'October' },
   { value: '11', label: 'November' },
   { value: '12', label: 'December' },
-]
+];
 
-export const currentYear = (): number => new Date().getFullYear()
-
-export const toYearMonth = (year: string | number, month: string) => `${year}-${month}`
-
-export const fromYearMonth = (date: string): { year: string; month: string } => {
-  const [year, month] = date.split('-')
-  return { year, month }
-}
-
-export const formatYearMonth = (date: string): string => date.replace('-', '/')
+export const currentYear = (): number => new Date().getFullYear();
 
 export const lastMonth = (): string => {
-  const d = new Date()
-  d.setDate(1)
-  d.setMonth(d.getMonth() - 1)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-}
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+};
+
+export const toYearMonth = (year: string | number, month: string) => `${String(year)}-${month}`;
+
+export const fromYearMonth = (date: string): { year: string; month: string } => {
+  const [year, month] = date.split('-');
+  return { year, month };
+};
+
+export const formatYearMonth = (date: string): string => date.replace('-', '/');

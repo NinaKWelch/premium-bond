@@ -1,19 +1,19 @@
-import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import type { TSimpleFormValues, TSimpleResult } from '../../types/bonds'
-import { lastMonth } from '../../utils/date'
-import { estimateEffectiveRate } from '../../utils/rateEstimator'
-import SimpleCalculatorForm from './SimpleCalculatorForm'
-import SimpleCalculatorResult from './SimpleCalculatorResult'
+import { useState } from 'react';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import type { TSimpleFormValues, TSimpleResult } from '../../types/bonds';
+import { lastMonth } from '../../utils/date';
+import { estimateEffectiveRate } from '../../utils/rateEstimator';
+import SimpleCalculatorForm from './SimpleCalculatorForm';
+import SimpleCalculatorResult from './SimpleCalculatorResult';
 
 const SimpleCalculator = () => {
-  const [result, setResult] = useState<TSimpleResult | null>(null)
+  const [result, setResult] = useState<TSimpleResult | null>(null);
 
   const calculate = ({ firstInvestmentMonth, totalInvested, totalPrizes }: TSimpleFormValues) => {
-    setResult(estimateEffectiveRate(firstInvestmentMonth, totalInvested, totalPrizes))
-  }
+    setResult(estimateEffectiveRate(firstInvestmentMonth, totalInvested, totalPrizes));
+  };
 
   return (
     <Box className="print-hide">
@@ -38,7 +38,7 @@ const SimpleCalculator = () => {
         {result && <SimpleCalculatorResult result={result} />}
       </Stack>
     </Box>
-  )
-}
+  );
+};
 
-export default SimpleCalculator
+export default SimpleCalculator;

@@ -1,18 +1,18 @@
-import { useForm, Controller } from 'react-hook-form'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
-import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
+import { useForm, Controller } from 'react-hook-form';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 
-import type { TPrizeFormValues } from '../../types/bonds'
-import { MONTHS, currentYear } from '../../utils/date'
-import { PREMIUM_BONDS_LAUNCH_YEAR, MIN_PRIZE_AMOUNT, MAX_PRIZE_AMOUNT } from '../../constants'
+import type { TPrizeFormValues } from '../../types/bonds';
+import { MONTHS, currentYear } from '../../utils/date';
+import { PREMIUM_BONDS_LAUNCH_YEAR, MIN_PRIZE_AMOUNT, MAX_PRIZE_AMOUNT } from '../../constants';
 
 interface IPrizeFormProps {
   onSubmit: (data: TPrizeFormValues) => Promise<void>
@@ -25,12 +25,15 @@ const PrizeForm = ({ onSubmit }: IPrizeFormProps) => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<TPrizeFormValues>({ mode: 'onChange' })
+  } = useForm<TPrizeFormValues>({
+    mode: 'onChange',
+    defaultValues: { month: '', year: '', reinvested: false },
+  });
 
   const submit = async (values: TPrizeFormValues) => {
-    await onSubmit(values)
-    reset()
-  }
+    await onSubmit(values);
+    reset();
+  };
 
   return (
     <form onSubmit={handleSubmit(submit)} noValidate>
@@ -43,12 +46,7 @@ const PrizeForm = ({ onSubmit }: IPrizeFormProps) => {
             render={({ field }) => (
               <FormControl fullWidth error={!!errors.month}>
                 <InputLabel id="prize-month-label">Month</InputLabel>
-                <Select
-                  labelId="prize-month-label"
-                  label="Month"
-                  {...field}
-                  value={field.value ?? ''}
-                >
+                <Select labelId="prize-month-label" label="Month" {...field} value={field.value}>
                   {MONTHS.map((m) => (
                     <MenuItem key={m.value} value={m.value}>
                       {m.label}
@@ -123,7 +121,7 @@ const PrizeForm = ({ onSubmit }: IPrizeFormProps) => {
         </Button>
       </Stack>
     </form>
-  )
-}
+  );
+};
 
-export default PrizeForm
+export default PrizeForm;

@@ -1,1 +1,1 @@
-export { default } from './PrintHeader'
+export { default } from './PrintHeader';

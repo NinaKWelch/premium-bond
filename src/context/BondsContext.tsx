@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react';
 import {
   getTransactions,
   getPrizes,
@@ -9,7 +9,7 @@ import {
   updatePrize,
   deletePrize,
   calculate,
-} from '../api/bonds'
+} from '../api/bonds';
 import type {
   TTransaction,
   TPrize,
@@ -17,138 +17,138 @@ import type {
   TNewTransaction,
   TNewPrize,
   TPrizeFormValues,
-} from '../types/bonds'
-import { toYearMonth } from '../utils/date'
-import BondsContext from './bondsContextDef'
+} from '../types/bonds';
+import { toYearMonth } from '../utils/date';
+import BondsContext from './bondsContextDef';
 
 export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
-  const [transactions, setTransactions] = useState<TTransaction[]>([])
-  const [prizes, setPrizes] = useState<TPrize[]>([])
-  const [results, setResults] = useState<TResults | null>(null)
-  const [calculating, setCalculating] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [pendingPrint, setPendingPrint] = useState(false)
+  const [transactions, setTransactions] = useState<TTransaction[]>([]);
+  const [prizes, setPrizes] = useState<TPrize[]>([]);
+  const [results, setResults] = useState<TResults | null>(null);
+  const [calculating, setCalculating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [pendingPrint, setPendingPrint] = useState(false);
 
   const showError = (err: unknown, fallback: string) =>
-    setErrorMessage(err instanceof Error ? err.message : fallback)
+    setErrorMessage(err instanceof Error ? err.message : fallback);
 
-  const clearError = () => setErrorMessage(null)
+  const clearError = () => setErrorMessage(null);
 
   const fetchTransactions = useCallback(async () => {
     try {
-      setTransactions(await getTransactions())
+      setTransactions(await getTransactions());
     } catch (err) {
-      showError(err, 'Failed to fetch transactions')
+      showError(err, 'Failed to fetch transactions');
     }
-  }, [])
+  }, []);
 
   const fetchPrizes = useCallback(async () => {
     try {
-      setPrizes(await getPrizes())
+      setPrizes(await getPrizes());
     } catch (err) {
-      showError(err, 'Failed to fetch prizes')
+      showError(err, 'Failed to fetch prizes');
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchTransactions()
-    fetchPrizes()
-  }, [fetchTransactions, fetchPrizes])
+    void fetchTransactions();
+    void fetchPrizes();
+  }, [fetchTransactions, fetchPrizes]);
 
   useEffect(() => {
     if (pendingPrint && results) {
-      setPendingPrint(false)
-      window.print()
+      setPendingPrint(false);
+      window.print();
     }
-  }, [pendingPrint, results])
+  }, [pendingPrint, results]);
 
   const handleTransactionSubmit = async (data: TNewTransaction) => {
-    await addTransaction(data)
-    fetchTransactions()
-    setResults(null)
-  }
+    await addTransaction(data);
+    void fetchTransactions();
+    setResults(null);
+  };
 
   const handleTransactionUpdate = async (id: string, data: TNewTransaction) => {
     try {
-      await updateTransaction(id, data)
-      fetchTransactions()
-      setResults(null)
+      await updateTransaction(id, data);
+      void fetchTransactions();
+      setResults(null);
     } catch (err) {
-      showError(err, 'Failed to update transaction')
+      showError(err, 'Failed to update transaction');
     }
-  }
+  };
 
   const handleTransactionDelete = async (id: string) => {
     try {
-      await deleteTransaction(id)
-      fetchTransactions()
-      setResults(null)
+      await deleteTransaction(id);
+      void fetchTransactions();
+      setResults(null);
     } catch (err) {
-      showError(err, 'Failed to delete transaction')
+      showError(err, 'Failed to delete transaction');
     }
-  }
+  };
 
   const handlePrizeSubmit = async ({ month, year, amount, reinvested }: TPrizeFormValues) => {
-    const date = toYearMonth(year, month)
+    const date = toYearMonth(year, month);
     try {
-      await addPrize({ date, amount })
+      await addPrize({ date, amount });
     } catch (err) {
-      showError(err, 'Failed to add prize')
-      return
+      showError(err, 'Failed to add prize');
+      return;
     }
 
     if (reinvested) {
       try {
-        await addTransaction({ date, amount, type: 'deposit' })
+        await addTransaction({ date, amount, type: 'deposit' });
       } catch (err) {
-        showError(err, 'Prize saved but failed to add reinvestment transaction')
+        showError(err, 'Prize saved but failed to add reinvestment transaction');
       }
-      fetchTransactions()
+      void fetchTransactions();
     }
 
-    fetchPrizes()
-    setResults(null)
-  }
+    void fetchPrizes();
+    setResults(null);
+  };
 
   const handlePrizeUpdate = async (id: string, data: TNewPrize) => {
     try {
-      await updatePrize(id, data)
-      fetchPrizes()
-      setResults(null)
+      await updatePrize(id, data);
+      void fetchPrizes();
+      setResults(null);
     } catch (err) {
-      showError(err, 'Failed to update prize')
+      showError(err, 'Failed to update prize');
     }
-  }
+  };
 
   const handlePrizeDelete = async (id: string) => {
     try {
-      await deletePrize(id)
-      fetchPrizes()
-      setResults(null)
+      await deletePrize(id);
+      void fetchPrizes();
+      setResults(null);
     } catch (err) {
-      showError(err, 'Failed to delete prize')
+      showError(err, 'Failed to delete prize');
     }
-  }
+  };
 
   const handleCalculate = async () => {
-    setCalculating(true)
+    setCalculating(true);
     try {
-      setResults(await calculate())
+      setResults(await calculate());
     } catch (err) {
-      showError(err, 'Failed to calculate')
+      showError(err, 'Failed to calculate');
     } finally {
-      setCalculating(false)
+      setCalculating(false);
     }
-  }
+  };
 
   const handlePrint = async () => {
     if (results) {
-      window.print()
+      window.print();
     } else {
-      await handleCalculate()
-      setPendingPrint(true)
+      await handleCalculate();
+      setPendingPrint(true);
     }
-  }
+  };
 
   return (
     <BondsContext.Provider
@@ -171,5 +171,5 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
     >
       {children}
     </BondsContext.Provider>
-  )
-}
+  );
+};

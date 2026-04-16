@@ -1,4 +1,4 @@
-import { createContext } from 'react'
+import { createContext } from 'react';
 import type {
   TNewTransaction,
   TNewPrize,
@@ -6,7 +6,7 @@ import type {
   TTransaction,
   TPrize,
   TPrizeFormValues,
-} from '../types/bonds'
+} from '../types/bonds';
 
 export interface IBondsContext {
   transactions: TTransaction[]
@@ -25,6 +25,6 @@ export interface IBondsContext {
   handlePrint: () => Promise<void>
 }
 
-const BondsContext = createContext<IBondsContext | null>(null)
+const BondsContext = createContext<IBondsContext | null>(null);
 
-export default BondsContext
+export default BondsContext;

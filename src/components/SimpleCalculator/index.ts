@@ -1,1 +1,1 @@
-export { default } from './SimpleCalculator'
+export { default } from './SimpleCalculator';

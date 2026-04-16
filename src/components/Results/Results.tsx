@@ -1,12 +1,12 @@
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import BondResults from './BondResults'
-import useBonds from '../../context/useBonds'
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import BondResults from './BondResults';
+import useBonds from '../../context/useBonds';
 
 const Results = () => {
-  const { results, calculating, transactions, prizes, handleCalculate } = useBonds()
-  const hasActivity = transactions.length > 0 || prizes.length > 0
+  const { results, calculating, transactions, prizes, handleCalculate } = useBonds();
+  const hasActivity = transactions.length > 0 || prizes.length > 0;
 
   return (
     <Box>
@@ -33,7 +33,7 @@ const Results = () => {
         </Box>
       )}
     </Box>
-  )
-}
+  );
+};
 
-export default Results
+export default Results;

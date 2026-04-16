@@ -1,12 +1,12 @@
-import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import Transactions from '../Transactions'
-import Prizes from '../Prizes'
-import useBonds from '../../context/useBonds'
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import Transactions from '../Transactions';
+import Prizes from '../Prizes';
+import useBonds from '../../context/useBonds';
 
 const Calculator = () => {
-  const { handleTransactionSubmit, handlePrizeSubmit } = useBonds()
+  const { handleTransactionSubmit, handlePrizeSubmit } = useBonds();
 
   return (
     <>
@@ -35,7 +35,7 @@ const Calculator = () => {
         </Box>
       </Stack>
     </>
-  )
-}
+  );
+};
 
-export default Calculator
+export default Calculator;

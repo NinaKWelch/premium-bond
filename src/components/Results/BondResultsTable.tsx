@@ -1,14 +1,14 @@
-import Stack from '@mui/material/Stack'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableFooter from '@mui/material/TableFooter'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
-import { InfoOutlined as InfoOutlinedIcon } from '@mui/icons-material'
-import type { TResults } from '../../types/bonds'
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableFooter from '@mui/material/TableFooter';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import { InfoOutlined as InfoOutlinedIcon } from '@mui/icons-material';
+import type { TResults } from '../../types/bonds';
 
 interface IBondResultsTableProps {
   results: TResults
@@ -19,10 +19,10 @@ const appendixText = {
     'The average amount invested throughout the year. Money deposited mid-year only counts for the portion of the year it was actually held.',
   effectiveRate:
     'The percentage return earned that year, calculated as prizes won divided by the average balance. This is what a savings account would need to pay to match the prize winnings.',
-}
+};
 
 const BondResultsTable = ({ results }: IBondResultsTableProps) => {
-  const { byYear, overall } = results
+  const { byYear, overall } = results;
 
   return (
     <Stack spacing={2}>
@@ -141,7 +141,7 @@ const BondResultsTable = ({ results }: IBondResultsTableProps) => {
         <strong>Effective rate:</strong> {appendixText.effectiveRate}
       </Typography>
     </Stack>
-  )
-}
+  );
+};
 
-export default BondResultsTable
+export default BondResultsTable;

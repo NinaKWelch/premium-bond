@@ -1,7 +1,7 @@
-import AppBar from '@mui/material/AppBar'
-import Container from '@mui/material/Container'
-import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
+import AppBar from '@mui/material/AppBar';
+import Container from '@mui/material/Container';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 
 const Header = () => (
   <AppBar position="static" className="print-hide">
@@ -17,6 +17,6 @@ const Header = () => (
       </Container>
     </Toolbar>
   </AppBar>
-)
+);
 
-export default Header
+export default Header;

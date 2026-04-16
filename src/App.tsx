@@ -1,14 +1,14 @@
-import Container from '@mui/material/Container'
-import Divider from '@mui/material/Divider'
-import Stack from '@mui/material/Stack'
-import { BondsProvider } from './context/BondsContext'
-import Activity from './components/Activity'
-import Calculator from './components/Calculator'
-import ErrorNotification from './components/ErrorNotification'
-import Header from './components/Header'
-import PrintHeader from './components/PrintHeader'
-import Results from './components/Results'
-import SimpleCalculator from './components/SimpleCalculator'
+import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
+import Stack from '@mui/material/Stack';
+import { BondsProvider } from './context/BondsContext';
+import Activity from './components/Activity';
+import Calculator from './components/Calculator';
+import ErrorNotification from './components/ErrorNotification';
+import Header from './components/Header';
+import PrintHeader from './components/PrintHeader';
+import Results from './components/Results';
+import SimpleCalculator from './components/SimpleCalculator';
 
 const App = () => (
   <BondsProvider>
@@ -26,6 +26,6 @@ const App = () => (
     </Container>
     <ErrorNotification />
   </BondsProvider>
-)
+);
 
-export default App
+export default App;

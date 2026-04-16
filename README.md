@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# Premium Bonds Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React frontend for tracking UK NS&I Premium Bond investments and prizes, and calculating your actual effective interest rate.
 
-Currently, two official plugins are available:
+## Tech stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript
+- Vite
+- MUI v9
+- react-hook-form
+- Vitest + Testing Library
 
-## React Compiler
+## Getting started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
 
-## Expanding the ESLint configuration
+- Node.js 20+
+- The [NinaKWelch/premium-bond-api](https://github.com/NinaKWelch/premium-bond-api) backend running locally
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Environment
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Create a `.env` file in the project root:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Install and run
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm install
+npm run dev
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+The app will be available at `http://localhost:5173`.
+
+## Scripts
+
+| Command              | Description                         |
+| -------------------- | ----------------------------------- |
+| `npm run dev`        | Start development server            |
+| `npm run build`      | Type-check and build for production |
+| `npm run preview`    | Preview production build            |
+| `npm test`           | Run tests                           |
+| `npm run test:watch` | Run tests in watch mode             |
+| `npm run lint`       | Lint all files                      |
+| `npm run format`     | Format all files with Prettier      |
+
+## Features
+
+- **Transactions** — record deposits and withdrawals with date and amount
+- **Prizes** — log prizes won each month; optionally mark a prize as reinvested (automatically adds a deposit transaction)
+- **Activity** — view, edit, and delete all transactions and prizes in one list
+- **Results** — calculate year-by-year effective interest rate and overall average
+- **Simple calculator** — estimate effective rate from total invested, total prizes, and start date without needing the backend
+- **Export** — download transactions and prizes as CSV
+- **Print** — print a results summary
+
+## Project structure
+
+```
+src/
+├── api/            # Fetch wrappers for each backend endpoint
+├── components/     # UI components grouped by feature
+├── constants/      # Shared numeric and string constants
+├── context/        # BondsContext — global state and API calls
+├── types/          # Shared TypeScript types
+└── utils/          # Pure utility functions (date helpers, rate estimator, file download)
 ```

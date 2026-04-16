@@ -1,17 +1,17 @@
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import type { TResults } from '../../types/bonds'
-import { NS_AND_I_PRIZE_FUND_RATE_PCT } from '../../constants'
-import BondResultsTable from './BondResultsTable'
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import type { TResults } from '../../types/bonds';
+import { NS_AND_I_PRIZE_FUND_RATE_PCT } from '../../constants';
+import BondResultsTable from './BondResultsTable';
 
 interface IBondResultsProps {
   results: TResults
 }
 
 const BondResults = ({ results }: IBondResultsProps) => {
-  const { overall } = results
-  const diff = overall.averageAnnualRatePct - NS_AND_I_PRIZE_FUND_RATE_PCT
-  const beatRate = diff >= 0
+  const { overall } = results;
+  const diff = overall.averageAnnualRatePct - NS_AND_I_PRIZE_FUND_RATE_PCT;
+  const beatRate = diff >= 0;
 
   return (
     <Stack spacing={3}>
@@ -42,7 +42,7 @@ const BondResults = ({ results }: IBondResultsProps) => {
         </Typography>
       </Stack>
     </Stack>
-  )
-}
+  );
+};
 
-export default BondResults
+export default BondResults;

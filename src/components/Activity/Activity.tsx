@@ -1,9 +1,9 @@
-import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import ActivityList from './ActivityList'
-import Export from '../Export'
-import useBonds from '../../context/useBonds'
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import ActivityList from './ActivityList';
+import Export from '../Export';
+import useBonds from '../../context/useBonds';
 
 const Activity = () => {
   const {
@@ -14,7 +14,7 @@ const Activity = () => {
     handlePrizeUpdate,
     handlePrizeDelete,
     handlePrint,
-  } = useBonds()
+  } = useBonds();
 
   return (
     <Box>
@@ -35,7 +35,7 @@ const Activity = () => {
         )}
       </Stack>
     </Box>
-  )
-}
+  );
+};
 
-export default Activity
+export default Activity;

@@ -1,14 +1,14 @@
-import Typography from '@mui/material/Typography'
-import { NS_AND_I_PRIZE_FUND_RATE_PCT } from '../../constants'
-import type { TSimpleResult } from '../../types/bonds'
+import Typography from '@mui/material/Typography';
+import { NS_AND_I_PRIZE_FUND_RATE_PCT } from '../../constants';
+import type { TSimpleResult } from '../../types/bonds';
 
 interface ISimpleCalculatorResultProps {
   result: TSimpleResult
 }
 
 const SimpleCalculatorResult = ({ result }: ISimpleCalculatorResultProps) => {
-  const diff = result.effectiveRatePct - NS_AND_I_PRIZE_FUND_RATE_PCT
-  const beatRate = diff >= 0
+  const diff = result.effectiveRatePct - NS_AND_I_PRIZE_FUND_RATE_PCT;
+  const beatRate = diff >= 0;
 
   return (
     <Typography variant="body1" color="text.secondary">
@@ -23,7 +23,7 @@ const SimpleCalculatorResult = ({ result }: ISimpleCalculatorResultProps) => {
       . Keep in mind this is a rough estimate — for a precise year-by-year breakdown use the
       detailed calculator below.
     </Typography>
-  )
-}
+  );
+};
 
-export default SimpleCalculatorResult
+export default SimpleCalculatorResult;
