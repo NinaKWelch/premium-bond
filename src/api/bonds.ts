@@ -2,7 +2,11 @@ import type { TTransaction, TPrize, TNewTransaction, TNewPrize, TResults } from 
 
 export type { TTransaction, TPrize, TNewTransaction, TNewPrize, TResults } from '#types/bonds';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
+const API_BASE = import.meta.env.VITE_API_BASE_URL as string | undefined;
+
+if (!API_BASE) {
+  throw new Error('VITE_API_BASE_URL is not set. Copy .env.example to .env and set the value.');
+}
 
 const parseError = async (res: Response, fallback: string): Promise<string> => {
   try {
