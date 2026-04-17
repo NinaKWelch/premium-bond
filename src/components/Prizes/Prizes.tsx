@@ -1,3 +1,5 @@
+'use client';
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import PrizeForm from './PrizeForm';
@@ -5,8 +7,8 @@ import PrizeForm from './PrizeForm';
 import type { TPrizeFormValues } from '#types/bonds';
 
 interface IPrizesProps {
-  onSubmit: (data: TPrizeFormValues) => Promise<void>
-  firstDepositDate: string | null
+  onSubmit: (data: TPrizeFormValues) => Promise<void>;
+  firstDepositDate: string | null;
 }
 
 const Prizes = ({ onSubmit, firstDepositDate }: IPrizesProps) => (

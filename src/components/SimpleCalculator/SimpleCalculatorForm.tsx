@@ -1,3 +1,5 @@
+'use client';
+
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@mui/material/Button';
@@ -10,9 +12,9 @@ import { currentMonth } from '#utils/date';
 import { PREMIUM_BONDS_LAUNCH_DATE, MIN_TRANSACTION_AMOUNT } from '#constants';
 
 interface ISimpleCalculatorFormProps {
-  defaultMonth: string
-  onSubmit: (values: TSimpleFormValues) => void
-  onChange: () => void
+  defaultMonth: string;
+  onSubmit: (values: TSimpleFormValues) => void;
+  onChange: () => void;
 }
 
 const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalculatorFormProps) => {

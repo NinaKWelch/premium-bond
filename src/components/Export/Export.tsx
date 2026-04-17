@@ -1,3 +1,5 @@
+'use client';
+
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -5,9 +7,9 @@ import type { TTransaction, TPrize } from '#types/bonds';
 import downloadFile from '#utils/downloadFile';
 
 interface IExportProps {
-  transactions: TTransaction[]
-  prizes: TPrize[]
-  onPrint: () => void
+  transactions: TTransaction[];
+  prizes: TPrize[];
+  onPrint: () => void;
 }
 
 const Export = ({ transactions, prizes, onPrint }: IExportProps) => {

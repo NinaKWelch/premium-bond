@@ -2,7 +2,6 @@ import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -18,5 +17,8 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    env: {
+      NEXT_PUBLIC_API_BASE_URL: 'http://localhost:3000/api/bonds',
+    },
   },
 });

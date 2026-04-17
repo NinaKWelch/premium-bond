@@ -1,3 +1,5 @@
+'use client';
+
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -8,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import type { TResults } from '#types/bonds';
 
 interface IBondResultsTableProps {
-  results: TResults
+  results: TResults;
 }
 
 const formatAmount = (value: number) =>

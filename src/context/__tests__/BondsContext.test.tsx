@@ -159,6 +159,7 @@ describe('handleTransactionSubmit', () => {
     await act(async () => {
       await result.current.handleCalculate();
     });
+
     expect(result.current.results).toEqual(RESULTS);
 
     await act(async () => {
@@ -176,9 +177,11 @@ describe('handleTransactionSubmit', () => {
 describe('handleTransactionUpdate', () => {
   it('calls updateTransaction and refreshes the list', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     const updated = { date: '2024-06', amount: 600, type: 'deposit' as const };
+
     await act(async () => {
       await result.current.handleTransactionUpdate('1', updated);
     });
@@ -191,6 +194,7 @@ describe('handleTransactionUpdate', () => {
     mockUpdateTransaction.mockRejectedValue(new Error('Not found'));
 
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -208,6 +212,7 @@ describe('handleTransactionUpdate', () => {
 describe('handleTransactionDelete', () => {
   it('calls deleteTransaction and refreshes the list', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -222,6 +227,7 @@ describe('handleTransactionDelete', () => {
     mockDeleteTransaction.mockRejectedValue(new Error('Not found'));
 
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -239,6 +245,7 @@ describe('handleTransactionDelete', () => {
 describe('handlePrizeSubmit', () => {
   it('calls addPrize and refreshes prizes', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -256,6 +263,7 @@ describe('handlePrizeSubmit', () => {
 
   it('also adds a deposit transaction when reinvested is true', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -270,7 +278,7 @@ describe('handlePrizeSubmit', () => {
     expect(mockAddTransaction).toHaveBeenCalledWith({
       date: '2024-03',
       amount: 25,
-      type: 'deposit',
+      type: 'reinvestment',
     });
     expect(mockGetTransactions).toHaveBeenCalledTimes(2);
   });
@@ -279,6 +287,7 @@ describe('handlePrizeSubmit', () => {
     mockAddPrize.mockRejectedValue(new Error('No deposits found'));
 
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -299,6 +308,7 @@ describe('handlePrizeSubmit', () => {
     mockAddTransaction.mockRejectedValue('server error');
 
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -319,6 +329,7 @@ describe('handlePrizeSubmit', () => {
 describe('handlePrizeUpdate', () => {
   it('calls updatePrize and refreshes prizes', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -333,6 +344,7 @@ describe('handlePrizeUpdate', () => {
     mockUpdatePrize.mockRejectedValue(new Error('Not found'));
 
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -346,6 +358,7 @@ describe('handlePrizeUpdate', () => {
 describe('handlePrizeDelete', () => {
   it('calls deletePrize and refreshes prizes', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -360,6 +373,7 @@ describe('handlePrizeDelete', () => {
     mockDeletePrize.mockRejectedValue(new Error('Not found'));
 
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -377,6 +391,7 @@ describe('handlePrizeDelete', () => {
 describe('handleCalculate', () => {
   it('sets results on success', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -388,6 +403,7 @@ describe('handleCalculate', () => {
 
   it('sets calculating to false after completion', async () => {
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -401,6 +417,7 @@ describe('handleCalculate', () => {
     mockCalculate.mockRejectedValue(new Error('No deposits found'));
 
     const { result } = renderHook(() => useBonds(), { wrapper });
+
     await act(async () => {});
 
     await act(async () => {
@@ -420,13 +437,17 @@ describe('handleCalculate', () => {
 describe('useBonds', () => {
   it('throws when used outside BondsProvider', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
+
     let caughtError: unknown;
+
     try {
       renderHook(() => useBonds());
     } catch (e) {
       caughtError = e;
     }
+
     vi.restoreAllMocks();
+
     expect(caughtError).toBeInstanceOf(Error);
     expect((caughtError as Error).message).toBe('useBonds must be used within BondsProvider');
   });

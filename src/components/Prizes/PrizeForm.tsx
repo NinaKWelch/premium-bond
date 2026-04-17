@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect, useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -19,8 +21,8 @@ import { MONTHS, YEARS } from '#utils/date';
 import { MIN_PRIZE_AMOUNT, MAX_PRIZE_AMOUNT } from '#constants';
 
 interface IPrizeFormProps {
-  onSubmit: (data: TPrizeFormValues) => Promise<void>
-  firstDepositDate: string | null
+  onSubmit: (data: TPrizeFormValues) => Promise<void>;
+  firstDepositDate: string | null;
 }
 
 const PrizeForm = ({ onSubmit, firstDepositDate }: IPrizeFormProps) => {
@@ -28,7 +30,9 @@ const PrizeForm = ({ onSubmit, firstDepositDate }: IPrizeFormProps) => {
     if (!firstDepositDate) {
       return prizeFormSchema;
     }
+
     const firstDepositYear = firstDepositDate.slice(0, 4);
+
     return prizeFormSchema.superRefine((data, ctx) => {
       if (!data.year) {
         return;
@@ -55,7 +59,6 @@ const PrizeForm = ({ onSubmit, firstDepositDate }: IPrizeFormProps) => {
     control,
     handleSubmit,
     reset,
-    watch,
     trigger,
     formState: { errors, isValid, isSubmitting },
   } = useForm({
@@ -64,8 +67,8 @@ const PrizeForm = ({ onSubmit, firstDepositDate }: IPrizeFormProps) => {
     defaultValues: { month: '', year: '', reinvested: false },
   });
 
-  const watchYear = watch('year');
-  const watchMonth = watch('month');
+  const watchYear = useWatch({ control, name: 'year' });
+  const watchMonth = useWatch({ control, name: 'month' });
 
   // Re-trigger both fields whenever either changes so cross-field errors always show
   useEffect(() => {

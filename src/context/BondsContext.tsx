@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
 import {
   getTransactions,
@@ -58,12 +60,14 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (pendingPrint && results) {
       setPendingPrint(false);
+
       window.print();
     }
   }, [pendingPrint, results]);
 
   const handleTransactionSubmit = async (data: TNewTransaction) => {
     await addTransaction(data);
+
     void fetchTransactions();
     setResults(null);
   };
@@ -71,6 +75,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   const handleTransactionUpdate = async (id: string, data: TNewTransaction) => {
     try {
       await updateTransaction(id, data);
+
       void fetchTransactions();
       setResults(null);
     } catch (err) {
@@ -81,6 +86,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   const handleTransactionDelete = async (id: string) => {
     try {
       await deleteTransaction(id);
+
       void fetchTransactions();
       setResults(null);
     } catch (err) {
@@ -103,6 +109,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (err) {
         showError(err, 'Prize saved but failed to add reinvestment transaction');
       }
+
       void fetchTransactions();
     }
 
@@ -113,6 +120,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   const handlePrizeUpdate = async (id: string, data: TNewPrize) => {
     try {
       await updatePrize(id, data);
+
       void fetchPrizes();
       setResults(null);
     } catch (err) {
@@ -123,6 +131,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   const handlePrizeDelete = async (id: string) => {
     try {
       await deletePrize(id);
+
       void fetchPrizes();
       setResults(null);
     } catch (err) {
@@ -146,6 +155,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
       window.print();
     } else {
       await handleCalculate();
+
       setPendingPrint(true);
     }
   };

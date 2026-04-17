@@ -1,141 +1,156 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getTransactions, getPrizes, addTransaction, addPrize, calculate } from '../bonds';
+import {
+  API_BASE,
+  getTransactions,
+  getPrizes,
+  addTransaction,
+  addPrize,
+  calculate,
+} from '../bonds';
 
-const mockFetch = vi.fn();
-vi.stubGlobal('fetch', mockFetch);
-
-function okResponse(body: unknown) {
+const okResponse = (body: unknown) => {
   return Promise.resolve({
     ok: true,
     json: () => Promise.resolve(body),
   } as Response);
-}
+};
 
-function errorResponse(body: unknown, status = 400) {
+const errorResponse = (body: unknown, status = 400) => {
   return Promise.resolve({
     ok: false,
     status,
     json: () => Promise.resolve(body),
   } as Response);
-}
+};
 
-beforeEach(() => {
-  mockFetch.mockReset();
-});
+describe('bonds api', () => {
+  const mockErrorMessage = 'Something went wrong';
+  const mockError = { error: mockErrorMessage };
+  const mockFetch = vi.fn();
 
-describe('getTransactions', () => {
-  it('returns transactions on success', async () => {
-    const data = [{ id: '1', date: '2024-01-01', amount: 1000, type: 'deposit' }];
-    mockFetch.mockReturnValue(okResponse(data));
+  vi.stubGlobal('fetch', mockFetch);
 
-    const result = await getTransactions();
-
-    expect(result).toEqual(data);
-    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/bonds/transactions');
+  beforeEach(() => {
+    mockFetch.mockReset();
   });
 
-  it('throws with the error message from the api on failure', async () => {
-    mockFetch.mockReturnValue(errorResponse({ error: 'Something went wrong' }));
+  describe('getTransactions', () => {
+    it('returns transactions on success', async () => {
+      const mockData = [{ id: '1', date: '2024-01-01', amount: 1000, type: 'deposit' }];
 
-    await expect(getTransactions()).rejects.toThrow('Something went wrong');
+      mockFetch.mockReturnValue(okResponse(mockData));
+
+      const result = await getTransactions();
+
+      expect(result).toEqual(mockData);
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/transactions`);
+    });
+
+    it('throws with the error message from the api on failure', async () => {
+      mockFetch.mockReturnValue(errorResponse(mockError));
+
+      await expect(getTransactions()).rejects.toThrow(mockErrorMessage);
+    });
+
+    it('throws a fallback message when the api returns no error field', async () => {
+      mockFetch.mockReturnValue(errorResponse({}));
+
+      await expect(getTransactions()).rejects.toThrow('Failed to fetch transactions');
+    });
   });
 
-  it('throws a fallback message when the api returns no error field', async () => {
-    mockFetch.mockReturnValue(errorResponse({}));
+  describe('getPrizes', () => {
+    it('returns prizes on success', async () => {
+      const mockData = [{ id: '1', date: '2024-03-01', amount: 25 }];
 
-    await expect(getTransactions()).rejects.toThrow('Failed to fetch transactions');
-  });
-});
+      mockFetch.mockReturnValue(okResponse(mockData));
 
-describe('getPrizes', () => {
-  it('returns prizes on success', async () => {
-    const data = [{ id: '1', date: '2024-03-01', amount: 25 }];
-    mockFetch.mockReturnValue(okResponse(data));
+      const result = await getPrizes();
 
-    const result = await getPrizes();
+      expect(result).toEqual(mockData);
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/prizes`);
+    });
 
-    expect(result).toEqual(data);
-    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/bonds/prizes');
-  });
+    it('throws with the error message from the api on failure', async () => {
+      mockFetch.mockReturnValue(errorResponse(mockError));
 
-  it('throws with the error message from the api on failure', async () => {
-    mockFetch.mockReturnValue(errorResponse({ error: 'Something went wrong' }));
-
-    await expect(getPrizes()).rejects.toThrow('Something went wrong');
-  });
-});
-
-describe('addTransaction', () => {
-  const newTransaction = { date: '2024-01-01', amount: 500, type: 'deposit' as const };
-
-  it('posts to the transactions endpoint', async () => {
-    mockFetch.mockReturnValue(okResponse({}));
-
-    await addTransaction(newTransaction);
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/bonds/transactions',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newTransaction),
-      }),
-    );
+      await expect(getPrizes()).rejects.toThrow(mockErrorMessage);
+    });
   });
 
-  it('throws with the error message from the api on failure', async () => {
-    mockFetch.mockReturnValue(errorResponse({ error: 'Withdrawal exceeds balance' }));
+  describe('addTransaction', () => {
+    const mockNewTransaction = { date: '2024-01-01', amount: 500, type: 'deposit' as const };
 
-    await expect(addTransaction(newTransaction)).rejects.toThrow('Withdrawal exceeds balance');
-  });
-});
+    it('posts to the transactions endpoint', async () => {
+      mockFetch.mockReturnValue(okResponse({}));
 
-describe('addPrize', () => {
-  const newPrize = { date: '2024-03-01', amount: 25 };
+      await addTransaction(mockNewTransaction);
 
-  it('posts to the prizes endpoint', async () => {
-    mockFetch.mockReturnValue(okResponse({}));
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${API_BASE}/transactions`,
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mockNewTransaction),
+        }),
+      );
+    });
 
-    await addPrize(newPrize);
+    it('throws with the error message from the api on failure', async () => {
+      mockFetch.mockReturnValue(errorResponse(mockError));
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/bonds/prizes',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPrize),
-      }),
-    );
-  });
-
-  it('throws with the error message from the api on failure', async () => {
-    mockFetch.mockReturnValue(
-      errorResponse({ error: 'Prize date must be in a later month than the first deposit' }),
-    );
-
-    await expect(addPrize(newPrize)).rejects.toThrow(
-      'Prize date must be in a later month than the first deposit',
-    );
-  });
-});
-
-describe('calculate', () => {
-  it('returns results on success', async () => {
-    const data = {
-      byYear: [{ year: 2024, averageBalance: 1000, prizesWon: 25, effectiveRatePct: 2.5 }],
-      overall: { totalInvested: 1000, totalPrizesWon: 25, averageAnnualRatePct: 2.5 },
-    };
-    mockFetch.mockReturnValue(okResponse(data));
-
-    const result = await calculate();
-
-    expect(result).toEqual(data);
-    expect(mockFetch).toHaveBeenCalledWith('http://localhost:3000/api/bonds/calculate');
+      await expect(addTransaction(mockNewTransaction)).rejects.toThrow(mockErrorMessage);
+    });
   });
 
-  it('throws with the error message from the api on failure', async () => {
-    mockFetch.mockReturnValue(errorResponse({ error: 'No deposits found' }));
+  describe('addPrize', () => {
+    const mockNewPrize = { date: '2024-03-01', amount: 25 };
 
-    await expect(calculate()).rejects.toThrow('No deposits found');
+    it('posts to the prizes endpoint', async () => {
+      mockFetch.mockReturnValue(okResponse({}));
+
+      await addPrize(mockNewPrize);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${API_BASE}/prizes`,
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mockNewPrize),
+        }),
+      );
+    });
+
+    it('throws with the error message from the api on failure', async () => {
+      mockFetch.mockReturnValue(
+        errorResponse({ error: 'Prize date must be in a later month than the first deposit' }),
+      );
+
+      await expect(addPrize(mockNewPrize)).rejects.toThrow(
+        'Prize date must be in a later month than the first deposit',
+      );
+    });
+  });
+
+  describe('calculate', () => {
+    it('returns results on success', async () => {
+      const mockData = {
+        byYear: [{ year: 2024, averageBalance: 1000, prizesWon: 25, effectiveRatePct: 2.5 }],
+        overall: { totalInvested: 1000, totalPrizesWon: 25, averageAnnualRatePct: 2.5 },
+      };
+
+      mockFetch.mockReturnValue(okResponse(mockData));
+
+      const result = await calculate();
+
+      expect(result).toEqual(mockData);
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE}/calculate`);
+    });
+
+    it('throws with the error message from the api on failure', async () => {
+      mockFetch.mockReturnValue(errorResponse(mockError));
+
+      await expect(calculate()).rejects.toThrow(mockErrorMessage);
+    });
   });
 });

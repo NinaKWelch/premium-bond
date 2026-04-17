@@ -1,3 +1,5 @@
+'use client';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -6,8 +8,21 @@ import { NS_AND_I_PRIZE_FUND_RATE_PCT } from '#constants';
 import BondResultsTable from './BondResultsTable';
 
 interface IBondResultsProps {
-  results: TResults
+  results: TResults;
 }
+
+const termDefinitions = [
+  { term: 'Amount invested', def: 'Net deposits or withdrawals you made that year.' },
+  { term: 'Prizes won', def: 'Total prize money credited to you that year.' },
+  {
+    term: 'Avg balance',
+    def: 'Time-weighted average amount held — money deposited or withdrawn mid-year is counted proportionally.',
+  },
+  {
+    term: 'Effective rate',
+    def: 'What a savings account would need to pay to match your prize winnings that year.',
+  },
+];
 
 const BondResults = ({ results }: IBondResultsProps) => {
   const { byYear, overall } = results;
@@ -19,6 +34,7 @@ const BondResults = ({ results }: IBondResultsProps) => {
     (sum, row) => sum + row.averageBalance * (NS_AND_I_PRIZE_FUND_RATE_PCT / 100),
     0,
   );
+
   const amountDiff = Math.abs(hypotheticalTotal - overall.totalPrizesWon);
 
   return (
@@ -27,18 +43,7 @@ const BondResults = ({ results }: IBondResultsProps) => {
         component="ul"
         sx={{ m: 0, pl: 2, py: 2, pr: 2, bgcolor: 'grey.100', borderRadius: 1, listStyle: 'none' }}
       >
-        {[
-          { term: 'Amount invested', def: 'Net deposits or withdrawals you made that year.' },
-          { term: 'Prizes won', def: 'Total prize money credited to you that year.' },
-          {
-            term: 'Avg balance',
-            def: 'Time-weighted average amount held — money deposited or withdrawn mid-year is counted proportionally.',
-          },
-          {
-            term: 'Effective rate',
-            def: 'What a savings account would need to pay to match your prize winnings that year.',
-          },
-        ].map(({ term, def }) => (
+        {termDefinitions.map(({ term, def }) => (
           <Typography
             key={term}
             component="li"

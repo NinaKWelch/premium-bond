@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import Box from '@mui/material/Box';
@@ -50,25 +52,25 @@ import {
 } from '#constants';
 
 interface IActivityListProps {
-  transactions: TTransaction[]
-  prizes: TPrize[]
-  onUpdateTransaction: (id: string, data: TNewTransaction) => Promise<void>
-  onDeleteTransaction: (id: string) => Promise<void>
-  onUpdatePrize: (id: string, data: TNewPrize) => Promise<void>
-  onDeletePrize: (id: string) => Promise<void>
+  transactions: TTransaction[];
+  prizes: TPrize[];
+  onUpdateTransaction: (id: string, data: TNewTransaction) => Promise<void>;
+  onDeleteTransaction: (id: string) => Promise<void>;
+  onUpdatePrize: (id: string, data: TNewPrize) => Promise<void>;
+  onDeletePrize: (id: string) => Promise<void>;
 }
 
 const chipColor = (type: TTransaction['type'] | 'prize') => {
-  if (type === 'deposit') {
-    return 'success' as const;
+  switch (type) {
+    case 'deposit':
+      return 'success';
+    case 'withdrawal':
+      return 'warning';
+    case 'reinvestment':
+      return 'secondary';
+    default:
+      return 'info';
   }
-  if (type === 'withdrawal') {
-    return 'warning' as const;
-  }
-  if (type === 'reinvestment') {
-    return 'secondary' as const;
-  }
-  return 'info' as const;
 };
 
 const borderColor = {
@@ -82,6 +84,7 @@ const displayLabel = (type: TTransaction['type'] | 'prize') => {
   if (type === 'reinvestment') {
     return 'reinvested prize';
   }
+
   return type;
 };
 
@@ -90,9 +93,9 @@ const ActionButtons = ({
   onDelete,
   mobileWhiteBg = false,
 }: {
-  onEdit: () => void
-  onDelete: () => void
-  mobileWhiteBg?: boolean
+  onEdit: () => void;
+  onDelete: () => void;
+  mobileWhiteBg?: boolean;
 }) => (
   <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
     <IconButton
@@ -149,9 +152,11 @@ const ActivityList = ({
     if (item.itemType === 'prize') {
       return 0;
     }
+
     if (item.type === 'reinvestment') {
       return 1;
     }
+
     return 2;
   };
 
@@ -161,24 +166,30 @@ const ActivityList = ({
   ].sort((a, b) => a.date.localeCompare(b.date) || itemOrder(a) - itemOrder(b));
 
   const openEdit = (item: TActivityItem) => {
-    setEditTarget(item);
     const { year, month } = fromYearMonth(item.date);
-    const type = 'type' in item ? (item.type === 'reinvestment' ? 'deposit' : item.type) : undefined;
+    const type =
+      'type' in item ? (item.type === 'reinvestment' ? 'deposit' : item.type) : undefined;
+
+    setEditTarget(item);
+
     reset({ year, month, amount: item.amount, ...(type ? { type } : {}) });
   };
 
   const closeEdit = () => setEditTarget(null);
 
   const handleEditSubmit = async ({ month, year, amount, type }: TTransactionFormValues) => {
+    const date = toYearMonth(year, month);
+
     if (!editTarget) {
       return;
     }
-    const date = toYearMonth(year, month);
+
     if (editTarget.itemType === 'transaction') {
       await onUpdateTransaction(editTarget.id, { date, amount, type });
     } else {
       await onUpdatePrize(editTarget.id, { date, amount });
     }
+
     closeEdit();
   };
 
@@ -186,11 +197,13 @@ const ActivityList = ({
     if (!deleteTarget) {
       return;
     }
+
     if (deleteTarget.itemType === 'transaction') {
       await onDeleteTransaction(deleteTarget.id);
     } else {
       await onDeletePrize(deleteTarget.id);
     }
+
     setDeleteTarget(null);
   };
 
@@ -356,7 +369,9 @@ const ActivityList = ({
                     if (editTarget?.itemType === 'prize') {
                       const firstDeposit = transactions
                         .filter((t) => t.type === 'deposit')
-                        .sort((a, b) => a.date.localeCompare(b.date))[0] as TTransaction | undefined;
+                        .sort((a, b) => a.date.localeCompare(b.date))[0] as
+                        | TTransaction
+                        | undefined;
                       if (firstDeposit && `${year}-${month}` <= firstDeposit.date) {
                         return 'Prize date must be after the month of your first deposit';
                       }

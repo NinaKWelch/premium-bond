@@ -1,10 +1,12 @@
+'use client';
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import type { TNewTransaction } from '#types/bonds';
 import TransactionForm from './TransactionForm';
 
 interface ITransactionsProps {
-  onSubmit: (data: TNewTransaction) => Promise<void>
+  onSubmit: (data: TNewTransaction) => Promise<void>;
 }
 
 const Transactions = ({ onSubmit }: ITransactionsProps) => (

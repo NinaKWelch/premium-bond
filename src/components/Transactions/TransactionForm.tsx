@@ -1,3 +1,5 @@
+'use client';
+
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@mui/material/Button';
@@ -15,7 +17,7 @@ import { MONTHS, YEARS, toYearMonth } from '#utils/date';
 import { MIN_TRANSACTION_AMOUNT, MAX_TRANSACTION_AMOUNT } from '#constants';
 
 interface ITransactionFormProps {
-  onSubmit: (data: TNewTransaction) => Promise<void>
+  onSubmit: (data: TNewTransaction) => Promise<void>;
 }
 
 const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
@@ -33,6 +35,7 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
 
   const submit = async ({ month, year, amount, type }: TTransactionFormValues) => {
     await onSubmit({ date: toYearMonth(year, month), amount, type });
+
     reset();
   };
 
