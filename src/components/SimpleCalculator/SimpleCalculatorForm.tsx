@@ -6,6 +6,8 @@ import TextField from '@mui/material/TextField';
 
 import type { TSimpleFormValues } from '#types/bonds';
 import { simpleFormSchema } from '#schemas/bonds.schemas';
+import { currentMonth } from '#utils/date';
+import { PREMIUM_BONDS_LAUNCH_DATE, MIN_TRANSACTION_AMOUNT } from '#constants';
 
 interface ISimpleCalculatorFormProps {
   defaultMonth: string
@@ -36,7 +38,10 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
         <TextField
           label="Month of first investment"
           type="month"
-          slotProps={{ inputLabel: { shrink: true } }}
+          slotProps={{
+            inputLabel: { shrink: true },
+            htmlInput: { min: PREMIUM_BONDS_LAUNCH_DATE, max: currentMonth() },
+          }}
           error={!!errors.firstInvestmentMonth}
           helperText={errors.firstInvestmentMonth?.message}
           sx={{ flex: { sm: 1 } }}
@@ -50,7 +55,7 @@ const SimpleCalculatorForm = ({ defaultMonth, onSubmit, onChange }: ISimpleCalcu
         <TextField
           label="Total invested (£)"
           type="number"
-          slotProps={{ htmlInput: { min: 1, step: 1 } }}
+          slotProps={{ htmlInput: { min: MIN_TRANSACTION_AMOUNT, step: 1 } }}
           error={!!errors.totalInvested}
           helperText={errors.totalInvested?.message}
           sx={{ flex: { sm: 1 } }}

@@ -9,6 +9,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -33,9 +34,15 @@ import type {
   TNewPrize,
   TTransactionFormValues,
 } from '#types/bonds';
-import { MONTHS, currentYear, toYearMonth, fromYearMonth, formatYearMonth } from '#utils/date';
 import {
-  PREMIUM_BONDS_LAUNCH_YEAR,
+  MONTHS,
+  YEARS,
+  currentMonth,
+  toYearMonth,
+  fromYearMonth,
+  formatYearMonth,
+} from '#utils/date';
+import {
   MIN_TRANSACTION_AMOUNT,
   MAX_TRANSACTION_AMOUNT,
   MIN_PRIZE_AMOUNT,
@@ -58,6 +65,9 @@ const chipColor = (type: TTransaction['type'] | 'prize') => {
   if (type === 'withdrawal') {
     return 'warning' as const;
   }
+  if (type === 'reinvestment') {
+    return 'secondary' as const;
+  }
   return 'info' as const;
 };
 
@@ -65,6 +75,14 @@ const borderColor = {
   deposit: '#4caf50',
   prize: '#0288d1',
   withdrawal: '#d32f2f',
+  reinvestment: '#9c27b0',
+};
+
+const displayLabel = (type: TTransaction['type'] | 'prize') => {
+  if (type === 'reinvestment') {
+    return 'reinvested prize';
+  }
+  return type;
 };
 
 const ActionButtons = ({
@@ -120,21 +138,33 @@ const ActivityList = ({
     control,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors, isValid },
   } = useForm<TTransactionFormValues>({
     mode: 'onChange',
     defaultValues: { month: '', year: '', type: 'deposit' },
   });
 
+  const itemOrder = (item: TActivityItem): number => {
+    if (item.itemType === 'prize') {
+      return 0;
+    }
+    if (item.type === 'reinvestment') {
+      return 1;
+    }
+    return 2;
+  };
+
   const items: TActivityItem[] = [
     ...transactions.map((t) => ({ ...t, itemType: 'transaction' as const })),
     ...prizes.map((p) => ({ ...p, itemType: 'prize' as const })),
-  ].sort((a, b) => a.date.localeCompare(b.date));
+  ].sort((a, b) => a.date.localeCompare(b.date) || itemOrder(a) - itemOrder(b));
 
   const openEdit = (item: TActivityItem) => {
     setEditTarget(item);
     const { year, month } = fromYearMonth(item.date);
-    reset({ year, month, amount: item.amount, ...('type' in item ? { type: item.type } : {}) });
+    const type = 'type' in item ? (item.type === 'reinvestment' ? 'deposit' : item.type) : undefined;
+    reset({ year, month, amount: item.amount, ...(type ? { type } : {}) });
   };
 
   const closeEdit = () => setEditTarget(null);
@@ -201,7 +231,7 @@ const ActivityList = ({
                   {formatYearMonth(item.date)}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 500, textTransform: 'capitalize' }}>
-                  {itemKind}
+                  {displayLabel(itemKind)}
                 </Typography>
                 <Typography
                   variant="body1"
@@ -249,7 +279,7 @@ const ActivityList = ({
                 <TableCell>{formatYearMonth(item.date)}</TableCell>
                 <TableCell>
                   <Chip
-                    label={itemKind}
+                    label={displayLabel(itemKind)}
                     size="small"
                     color={chipColor(itemKind)}
                     variant="outlined"
@@ -309,29 +339,44 @@ const ActivityList = ({
                         </MenuItem>
                       ))}
                     </Select>
+                    {errors.month && <FormHelperText>{errors.month.message}</FormHelperText>}
                   </FormControl>
                 )}
               />
-              <TextField
-                label="Year"
-                type="number"
-                fullWidth
-                slotProps={{
-                  htmlInput: { min: PREMIUM_BONDS_LAUNCH_YEAR, max: currentYear(), step: 1 },
-                }}
-                error={!!errors.year}
-                helperText={errors.year?.message}
-                {...register('year', {
+              <Controller
+                name="year"
+                control={control}
+                rules={{
                   required: 'Year is required',
-                  min: {
-                    value: PREMIUM_BONDS_LAUNCH_YEAR,
-                    message: `Year must be ${PREMIUM_BONDS_LAUNCH_YEAR} or later`,
+                  validate: (year) => {
+                    const month = getValues('month');
+                    if (month && `${year}-${month}` > currentMonth()) {
+                      return 'Date cannot be in the future';
+                    }
+                    if (editTarget?.itemType === 'prize') {
+                      const firstDeposit = transactions
+                        .filter((t) => t.type === 'deposit')
+                        .sort((a, b) => a.date.localeCompare(b.date))[0] as TTransaction | undefined;
+                      if (firstDeposit && `${year}-${month}` <= firstDeposit.date) {
+                        return 'Prize date must be after the month of your first deposit';
+                      }
+                    }
+                    return true;
                   },
-                  max: {
-                    value: currentYear(),
-                    message: `Year must be ${currentYear()} or earlier`,
-                  },
-                })}
+                }}
+                render={({ field }) => (
+                  <FormControl fullWidth error={!!errors.year}>
+                    <InputLabel id="edit-year-label">Year</InputLabel>
+                    <Select labelId="edit-year-label" label="Year" {...field} value={field.value}>
+                      {YEARS.map((y) => (
+                        <MenuItem key={y} value={y}>
+                          {y}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.year && <FormHelperText>{errors.year.message}</FormHelperText>}
+                  </FormControl>
+                )}
               />
             </Stack>
             <TextField

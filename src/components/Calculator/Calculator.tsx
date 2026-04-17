@@ -6,7 +6,11 @@ import Prizes from '#components/Prizes';
 import useBonds from '#context/useBonds';
 
 const Calculator = () => {
-  const { handleTransactionSubmit, handlePrizeSubmit } = useBonds();
+  const { transactions, handleTransactionSubmit, handlePrizeSubmit } = useBonds();
+
+  const firstDepositDate =
+    transactions.filter((t) => t.type === 'deposit').sort((a, b) => a.date.localeCompare(b.date))[0]
+      ?.date ?? null;
 
   return (
     <>
@@ -31,7 +35,7 @@ const Calculator = () => {
           <Transactions onSubmit={handleTransactionSubmit} />
         </Box>
         <Box sx={{ flex: 1 }}>
-          <Prizes onSubmit={handlePrizeSubmit} />
+          <Prizes onSubmit={handlePrizeSubmit} firstDepositDate={firstDepositDate} />
         </Box>
       </Stack>
     </>

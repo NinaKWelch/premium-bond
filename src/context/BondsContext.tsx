@@ -99,7 +99,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (reinvested) {
       try {
-        await addTransaction({ date, amount, type: 'deposit' });
+        await addTransaction({ date, amount, type: 'reinvestment' });
       } catch (err) {
         showError(err, 'Prize saved but failed to add reinvestment transaction');
       }

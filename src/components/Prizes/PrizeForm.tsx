@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
@@ -5,6 +6,7 @@ import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -13,25 +15,64 @@ import TextField from '@mui/material/TextField';
 
 import type { TPrizeFormValues } from '#types/bonds';
 import { prizeFormSchema } from '#schemas/bonds.schemas';
-import { MONTHS, currentYear } from '#utils/date';
-import { PREMIUM_BONDS_LAUNCH_YEAR, MIN_PRIZE_AMOUNT, MAX_PRIZE_AMOUNT } from '#constants';
+import { MONTHS, YEARS } from '#utils/date';
+import { MIN_PRIZE_AMOUNT, MAX_PRIZE_AMOUNT } from '#constants';
 
 interface IPrizeFormProps {
   onSubmit: (data: TPrizeFormValues) => Promise<void>
+  firstDepositDate: string | null
 }
 
-const PrizeForm = ({ onSubmit }: IPrizeFormProps) => {
+const PrizeForm = ({ onSubmit, firstDepositDate }: IPrizeFormProps) => {
+  const schema = useMemo(() => {
+    if (!firstDepositDate) {
+      return prizeFormSchema;
+    }
+    const firstDepositYear = firstDepositDate.slice(0, 4);
+    return prizeFormSchema.superRefine((data, ctx) => {
+      if (!data.year) {
+        return;
+      }
+
+      if (data.year < firstDepositYear) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['year'],
+          message: `Prizes can only be won after your first deposit in ${firstDepositDate.replace('-', '/')}`,
+        });
+      } else if (data.month && `${data.year}-${data.month}` <= firstDepositDate) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['month'],
+          message: 'Prize date must be after the month of your first deposit',
+        });
+      }
+    });
+  }, [firstDepositDate]);
+
   const {
     register,
     control,
     handleSubmit,
     reset,
+    watch,
+    trigger,
     formState: { errors, isValid, isSubmitting },
   } = useForm({
-    resolver: zodResolver(prizeFormSchema),
+    resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: { month: '', year: '', reinvested: false },
   });
+
+  const watchYear = watch('year');
+  const watchMonth = watch('month');
+
+  // Re-trigger both fields whenever either changes so cross-field errors always show
+  useEffect(() => {
+    if (watchMonth || watchYear) {
+      void trigger(['month', 'year']);
+    }
+  }, [watchYear, watchMonth, trigger]);
 
   const submit = async (values: TPrizeFormValues) => {
     await onSubmit(values);
@@ -55,20 +96,27 @@ const PrizeForm = ({ onSubmit }: IPrizeFormProps) => {
                     </MenuItem>
                   ))}
                 </Select>
+                {errors.month && <FormHelperText>{errors.month.message}</FormHelperText>}
               </FormControl>
             )}
           />
 
-          <TextField
-            label="Year"
-            type="number"
-            fullWidth
-            slotProps={{
-              htmlInput: { min: PREMIUM_BONDS_LAUNCH_YEAR, max: currentYear(), step: 1 },
-            }}
-            error={!!errors.year}
-            helperText={errors.year?.message}
-            {...register('year')}
+          <Controller
+            name="year"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth error={!!errors.year}>
+                <InputLabel id="prize-year-label">Year</InputLabel>
+                <Select labelId="prize-year-label" label="Year" {...field} value={field.value}>
+                  {YEARS.map((y) => (
+                    <MenuItem key={y} value={y}>
+                      {y}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.year && <FormHelperText>{errors.year.message}</FormHelperText>}
+              </FormControl>
+            )}
           />
         </Stack>
 

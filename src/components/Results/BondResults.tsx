@@ -23,6 +23,34 @@ const BondResults = ({ results }: IBondResultsProps) => {
 
   return (
     <Stack spacing={3}>
+      <Box
+        component="ul"
+        sx={{ m: 0, pl: 2, py: 2, pr: 2, bgcolor: 'grey.100', borderRadius: 1, listStyle: 'none' }}
+      >
+        {[
+          { term: 'Amount invested', def: 'Net deposits or withdrawals you made that year.' },
+          { term: 'Prizes won', def: 'Total prize money credited to you that year.' },
+          {
+            term: 'Avg balance',
+            def: 'Time-weighted average amount held — money deposited or withdrawn mid-year is counted proportionally.',
+          },
+          {
+            term: 'Effective rate',
+            def: 'What a savings account would need to pay to match your prize winnings that year.',
+          },
+        ].map(({ term, def }) => (
+          <Typography
+            key={term}
+            component="li"
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}
+          >
+            <strong>{term}:</strong> {def}
+          </Typography>
+        ))}
+      </Box>
+
       <BondResultsTable results={results} />
 
       <Stack spacing={2}>
@@ -38,6 +66,16 @@ const BondResults = ({ results }: IBondResultsProps) => {
           </strong>
           .
         </Typography>
+
+        {overall.cashDeposited !== overall.totalInvested && (
+          <Typography variant="body1" color="text.secondary">
+            Of the <strong>£{overall.totalInvested.toFixed(2)}</strong> net balance, you personally
+            deposited <strong>£{overall.cashDeposited.toFixed(2)}</strong> in cash (net of any
+            withdrawals) — the remaining{' '}
+            <strong>£{(overall.totalInvested - overall.cashDeposited).toFixed(2)}</strong> came from
+            reinvested prizes.
+          </Typography>
+        )}
 
         {beatRate ? (
           <Typography variant="body1" color="text.secondary">
@@ -58,34 +96,6 @@ const BondResults = ({ results }: IBondResultsProps) => {
             savings account, which offers a guaranteed interest rate on your balance.
           </Typography>
         )}
-
-        <Box
-          component="ul"
-          sx={{ m: 0, pl: 4, py: 2, pr: 2, bgcolor: 'grey.100', borderRadius: 1 }}
-        >
-          {[
-            { term: 'Amount invested', def: 'Net deposits or withdrawals you made that year.' },
-            { term: 'Prizes won', def: 'Total prize money credited to you that year.' },
-            {
-              term: 'Avg balance',
-              def: 'Time-weighted average amount held — money deposited or withdrawn mid-year is counted proportionally.',
-            },
-            {
-              term: 'Effective rate',
-              def: 'What a savings account would need to pay to match your prize winnings that year.',
-            },
-          ].map(({ term, def }) => (
-            <Typography
-              key={term}
-              component="li"
-              variant="body2"
-              color="text.secondary"
-              sx={{ fontSize: '1rem' }}
-            >
-              <strong>{term}:</strong> {def}
-            </Typography>
-          ))}
-        </Box>
       </Stack>
     </Stack>
   );

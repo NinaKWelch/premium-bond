@@ -15,7 +15,7 @@ export type TTransaction = {
   id: string
   date: string
   amount: number
-  type: 'deposit' | 'withdrawal'
+  type: 'deposit' | 'withdrawal' | 'reinvestment'
 }
 
 export type TPrize = {
@@ -49,6 +49,7 @@ export type TResults = {
   byYear: TYearResult[]
   overall: {
     totalInvested: number
+    cashDeposited: number
     totalPrizesWon: number
     averageAnnualRatePct: number
   }

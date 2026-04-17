@@ -1,19 +1,19 @@
-export const MONTHS = [
-  { value: '01', label: 'January' },
-  { value: '02', label: 'February' },
-  { value: '03', label: 'March' },
-  { value: '04', label: 'April' },
-  { value: '05', label: 'May' },
-  { value: '06', label: 'June' },
-  { value: '07', label: 'July' },
-  { value: '08', label: 'August' },
-  { value: '09', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' },
-];
+import { PREMIUM_BONDS_LAUNCH_YEAR } from '#constants';
 
 export const currentYear = (): number => new Date().getFullYear();
+
+export const yearOptions = (startYear: number): string[] => {
+  const years: string[] = [];
+  for (let y = currentYear(); y >= startYear; y--) {
+    years.push(String(y));
+  }
+  return years;
+};
+
+export const currentMonth = (): string => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+};
 
 export const lastMonth = (): string => {
   const d = new Date();
@@ -30,3 +30,20 @@ export const fromYearMonth = (date: string): { year: string; month: string } => 
 };
 
 export const formatYearMonth = (date: string): string => date.replace('-', '/');
+
+export const YEARS = yearOptions(PREMIUM_BONDS_LAUNCH_YEAR);
+
+export const MONTHS = [
+  { value: '01', label: 'January' },
+  { value: '02', label: 'February' },
+  { value: '03', label: 'March' },
+  { value: '04', label: 'April' },
+  { value: '05', label: 'May' },
+  { value: '06', label: 'June' },
+  { value: '07', label: 'July' },
+  { value: '08', label: 'August' },
+  { value: '09', label: 'September' },
+  { value: '10', label: 'October' },
+  { value: '11', label: 'November' },
+  { value: '12', label: 'December' },
+];

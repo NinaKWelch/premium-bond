@@ -2,6 +2,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -10,12 +11,8 @@ import TextField from '@mui/material/TextField';
 
 import type { TTransactionFormValues, TNewTransaction } from '#types/bonds';
 import { transactionFormSchema } from '#schemas/bonds.schemas';
-import { MONTHS, currentYear, toYearMonth } from '#utils/date';
-import {
-  PREMIUM_BONDS_LAUNCH_YEAR,
-  MIN_TRANSACTION_AMOUNT,
-  MAX_TRANSACTION_AMOUNT,
-} from '#constants';
+import { MONTHS, YEARS, toYearMonth } from '#utils/date';
+import { MIN_TRANSACTION_AMOUNT, MAX_TRANSACTION_AMOUNT } from '#constants';
 
 interface ITransactionFormProps {
   onSubmit: (data: TNewTransaction) => Promise<void>
@@ -56,20 +53,27 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
                     </MenuItem>
                   ))}
                 </Select>
+                {errors.month && <FormHelperText>{errors.month.message}</FormHelperText>}
               </FormControl>
             )}
           />
 
-          <TextField
-            label="Year"
-            type="number"
-            fullWidth
-            slotProps={{
-              htmlInput: { min: PREMIUM_BONDS_LAUNCH_YEAR, max: currentYear(), step: 1 },
-            }}
-            error={!!errors.year}
-            helperText={errors.year?.message}
-            {...register('year')}
+          <Controller
+            name="year"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth error={!!errors.year}>
+                <InputLabel id="txn-year-label">Year</InputLabel>
+                <Select labelId="txn-year-label" label="Year" {...field} value={field.value}>
+                  {YEARS.map((y) => (
+                    <MenuItem key={y} value={y}>
+                      {y}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.year && <FormHelperText>{errors.year.message}</FormHelperText>}
+              </FormControl>
+            )}
           />
         </Stack>
 
