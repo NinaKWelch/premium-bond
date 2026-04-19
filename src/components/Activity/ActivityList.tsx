@@ -1,55 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
-import IconButton from '@mui/material/IconButton';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import {
-  DeleteOutlined as DeleteOutlineIcon,
-  EditOutlined as EditOutlinedIcon,
-} from '@mui/icons-material';
-import type {
-  TTransaction,
-  TPrize,
-  TActivityItem,
-  TNewTransaction,
-  TNewPrize,
-  TTransactionFormValues,
-} from '#types/bonds';
-import {
-  MONTHS,
-  YEARS,
-  currentMonth,
-  toYearMonth,
-  fromYearMonth,
-  formatYearMonth,
-} from '#utils/date';
-import {
-  MIN_TRANSACTION_AMOUNT,
-  MAX_TRANSACTION_AMOUNT,
-  MIN_PRIZE_AMOUNT,
-  MAX_PRIZE_AMOUNT,
-} from '#constants';
+import type { TTransaction, TPrize, TActivityItem, TNewTransaction, TNewPrize } from '#types/bonds';
+import { formatYearMonth } from '#utils/date';
+import ActivityTable from './ActivityTable';
+import DeleteDialog from './DeleteDialog';
+import EditDialog from './EditDialog';
+import { displayLabel, ActionButtons } from './activityHelpers';
 
 interface IActivityListProps {
   transactions: TTransaction[];
@@ -60,70 +20,12 @@ interface IActivityListProps {
   onDeletePrize: (id: string) => Promise<void>;
 }
 
-const chipColor = (type: TTransaction['type'] | 'prize') => {
-  switch (type) {
-    case 'deposit':
-      return 'success';
-    case 'withdrawal':
-      return 'warning';
-    case 'reinvestment':
-      return 'secondary';
-    default:
-      return 'info';
-  }
-};
-
 const borderColor = {
   deposit: '#4caf50',
   prize: '#0288d1',
   withdrawal: '#d32f2f',
   reinvestment: '#9c27b0',
 };
-
-const displayLabel = (type: TTransaction['type'] | 'prize') => {
-  if (type === 'reinvestment') {
-    return 'reinvested prize';
-  }
-
-  return type;
-};
-
-const ActionButtons = ({
-  onEdit,
-  onDelete,
-  mobileWhiteBg = false,
-}: {
-  onEdit: () => void;
-  onDelete: () => void;
-  mobileWhiteBg?: boolean;
-}) => (
-  <Stack direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
-    <IconButton
-      size="small"
-      aria-label="Edit"
-      onClick={onEdit}
-      sx={{
-        color: 'primary.main',
-        ...(mobileWhiteBg && { bgcolor: 'white' }),
-        '&:hover, &:active': { bgcolor: 'primary.main', color: 'white' },
-      }}
-    >
-      <EditOutlinedIcon fontSize="small" />
-    </IconButton>
-    <IconButton
-      size="small"
-      aria-label="Delete"
-      onClick={onDelete}
-      sx={{
-        color: 'error.main',
-        ...(mobileWhiteBg && { bgcolor: 'white' }),
-        '&:hover, &:active': { bgcolor: 'error.main', color: 'white' },
-      }}
-    >
-      <DeleteOutlineIcon fontSize="small" />
-    </IconButton>
-  </Stack>
-);
 
 const ActivityList = ({
   transactions,
@@ -136,18 +38,6 @@ const ActivityList = ({
   const [deleteTarget, setDeleteTarget] = useState<TActivityItem | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editTarget, setEditTarget] = useState<TActivityItem | null>(null);
-
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    getValues,
-    formState: { errors, isValid },
-  } = useForm<TTransactionFormValues>({
-    mode: 'onChange',
-    defaultValues: { month: '', year: '', type: 'deposit' },
-  });
 
   const itemOrder = (item: TActivityItem): number => {
     if (item.itemType === 'prize') {
@@ -166,34 +56,6 @@ const ActivityList = ({
     ...prizes.map((p) => ({ ...p, itemType: 'prize' as const })),
   ].sort((a, b) => a.date.localeCompare(b.date) || itemOrder(a) - itemOrder(b));
 
-  const openEdit = (item: TActivityItem) => {
-    const { year, month } = fromYearMonth(item.date);
-    const type =
-      'type' in item ? (item.type === 'reinvestment' ? 'deposit' : item.type) : undefined;
-
-    setEditTarget(item);
-
-    reset({ year, month, amount: item.amount, ...(type ? { type } : {}) });
-  };
-
-  const closeEdit = () => setEditTarget(null);
-
-  const handleEditSubmit = async ({ month, year, amount, type }: TTransactionFormValues) => {
-    const date = toYearMonth(year, month);
-
-    if (!editTarget) {
-      return;
-    }
-
-    if (editTarget.itemType === 'transaction') {
-      await onUpdateTransaction(editTarget.id, { date, amount, type });
-    } else {
-      await onUpdatePrize(editTarget.id, { date, amount });
-    }
-
-    closeEdit();
-  };
-
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) {
       return;
@@ -205,6 +67,7 @@ const ActivityList = ({
       } else {
         await onDeletePrize(deleteTarget.id);
       }
+
       setDeleteTarget(null);
       setDeleteError(null);
     } catch (err) {
@@ -215,8 +78,6 @@ const ActivityList = ({
   if (items.length === 0) {
     return <Typography color="text.secondary">No activity yet.</Typography>;
   }
-
-  const isTransaction = editTarget?.itemType === 'transaction';
 
   return (
     <>
@@ -259,7 +120,7 @@ const ActivityList = ({
                 </Typography>
               </Box>
               <ActionButtons
-                onEdit={() => openEdit(item)}
+                onEdit={() => setEditTarget(item)}
                 onDelete={() => setDeleteTarget(item)}
                 mobileWhiteBg
               />
@@ -269,213 +130,25 @@ const ActivityList = ({
       </Stack>
 
       {/* Tablet/desktop: table */}
-      <Table
-        size="small"
-        sx={{
-          display: { xs: 'none', sm: 'table' },
-          '& .MuiTableCell-root': { fontSize: '1.125rem' },
-        }}
-      >
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell align="right">Amount</TableCell>
-            <TableCell className="print-hide" />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {items.map((item) => {
-            const itemKind = 'type' in item ? item.type : 'prize';
-            const isWithdrawal = itemKind === 'withdrawal';
-            const formattedAmount = isWithdrawal
-              ? `-£${item.amount.toFixed(2)}`
-              : `£${item.amount.toFixed(2)}`;
+      <ActivityTable items={items} onEdit={setEditTarget} onDelete={setDeleteTarget} />
 
-            return (
-              <TableRow key={`${item.itemType}-${item.id}`}>
-                <TableCell>{formatYearMonth(item.date)}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={displayLabel(itemKind)}
-                    size="small"
-                    color={chipColor(itemKind)}
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell align="right" sx={{ color: isWithdrawal ? 'error.main' : 'inherit' }}>
-                  {formattedAmount}
-                </TableCell>
-                <TableCell align="right" className="print-hide">
-                  <ActionButtons
-                    onEdit={() => openEdit(item)}
-                    onDelete={() => setDeleteTarget(item)}
-                  />
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-
-      {/* Delete confirmation dialog */}
-      <Dialog
-        open={!!deleteTarget}
+      <DeleteDialog
+        target={deleteTarget}
+        error={deleteError}
+        onConfirm={handleDeleteConfirm}
         onClose={() => {
           setDeleteTarget(null);
           setDeleteError(null);
         }}
-      >
-        <DialogTitle>Delete {deleteTarget?.itemType}?</DialogTitle>
-        <DialogContent>
-          {deleteError ? (
-            <DialogContentText color="error">{deleteError}</DialogContentText>
-          ) : (
-            <DialogContentText>
-              This will permanently remove the{' '}
-              {deleteTarget && 'type' in deleteTarget ? deleteTarget.type : 'prize'} of £
-              {deleteTarget?.amount.toFixed(2)} on {formatYearMonth(deleteTarget?.date ?? '')}. This
-              cannot be undone.
-            </DialogContentText>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setDeleteTarget(null);
-              setDeleteError(null);
-            }}
-          >
-            Cancel
-          </Button>
-          {!deleteError && (
-            <Button color="error" onClick={handleDeleteConfirm}>
-              Delete
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
+      />
 
-      {/* Edit dialog */}
-      <Dialog open={!!editTarget} onClose={closeEdit} fullWidth maxWidth="xs">
-        <DialogTitle>Edit {editTarget?.itemType}</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <Stack direction="row" spacing={2}>
-              <Controller
-                name="month"
-                control={control}
-                rules={{ required: 'Month is required' }}
-                render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.month}>
-                    <InputLabel id="edit-month-label">Month</InputLabel>
-                    <Select labelId="edit-month-label" label="Month" {...field} value={field.value}>
-                      {MONTHS.map((m) => (
-                        <MenuItem key={m.value} value={m.value}>
-                          {m.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.month && <FormHelperText>{errors.month.message}</FormHelperText>}
-                  </FormControl>
-                )}
-              />
-              <Controller
-                name="year"
-                control={control}
-                rules={{
-                  required: 'Year is required',
-                  validate: (year) => {
-                    const month = getValues('month');
-                    if (month && `${year}-${month}` > currentMonth()) {
-                      return 'Date cannot be in the future';
-                    }
-                    if (editTarget?.itemType === 'prize') {
-                      const firstDeposit = transactions
-                        .filter((t) => t.type === 'deposit')
-                        .sort((a, b) => a.date.localeCompare(b.date))[0] as
-                        | TTransaction
-                        | undefined;
-                      if (firstDeposit && `${year}-${month}` <= firstDeposit.date) {
-                        return 'Prize date must be after the month of your first deposit';
-                      }
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.year}>
-                    <InputLabel id="edit-year-label">Year</InputLabel>
-                    <Select labelId="edit-year-label" label="Year" {...field} value={field.value}>
-                      {YEARS.map((y) => (
-                        <MenuItem key={y} value={y}>
-                          {y}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.year && <FormHelperText>{errors.year.message}</FormHelperText>}
-                  </FormControl>
-                )}
-              />
-            </Stack>
-            <TextField
-              label="Amount (£)"
-              type="number"
-              slotProps={{
-                htmlInput: {
-                  min: isTransaction ? MIN_TRANSACTION_AMOUNT : MIN_PRIZE_AMOUNT,
-                  max: isTransaction ? MAX_TRANSACTION_AMOUNT : MAX_PRIZE_AMOUNT,
-                  step: 1,
-                },
-              }}
-              fullWidth
-              error={!!errors.amount}
-              helperText={errors.amount?.message}
-              {...register('amount', {
-                required: 'Amount is required',
-                valueAsNumber: true,
-                min: isTransaction
-                  ? {
-                      value: MIN_TRANSACTION_AMOUNT,
-                      message: `Amount must be at least £${MIN_TRANSACTION_AMOUNT}`,
-                    }
-                  : { value: MIN_PRIZE_AMOUNT, message: `Minimum prize is £${MIN_PRIZE_AMOUNT}` },
-                max: isTransaction
-                  ? {
-                      value: MAX_TRANSACTION_AMOUNT,
-                      message: `Maximum holding is £${MAX_TRANSACTION_AMOUNT.toLocaleString()}`,
-                    }
-                  : {
-                      value: MAX_PRIZE_AMOUNT,
-                      message: `Maximum prize is £${MAX_PRIZE_AMOUNT.toLocaleString()}`,
-                    },
-              })}
-            />
-            {isTransaction && (
-              <Controller
-                name="type"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel id="edit-type-label">Type</InputLabel>
-                    <Select labelId="edit-type-label" label="Type" {...field} value={field.value}>
-                      <MenuItem value="deposit">Deposit</MenuItem>
-                      <MenuItem value="withdrawal">Withdrawal</MenuItem>
-                    </Select>
-                  </FormControl>
-                )}
-              />
-            )}
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeEdit}>Cancel</Button>
-          <Button variant="contained" disabled={!isValid} onClick={handleSubmit(handleEditSubmit)}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EditDialog
+        editTarget={editTarget}
+        transactions={transactions}
+        onUpdateTransaction={onUpdateTransaction}
+        onUpdatePrize={onUpdatePrize}
+        onClose={() => setEditTarget(null)}
+      />
     </>
   );
 };

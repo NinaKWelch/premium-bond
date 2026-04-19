@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import { loginResponseSchema } from '#schemas/auth.schemas';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -19,7 +20,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const data = (await res.json()) as { id: string; email: string; token: string };
+        const data = loginResponseSchema.parse(await res.json());
 
         return { id: data.id, email: data.email, backendToken: data.token };
       },
@@ -28,13 +29,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     jwt({ token, user, account }) {
       if (account) {
-        token.backendToken = (user as { backendToken: string }).backendToken;
+        token.backendToken = user.backendToken;
       }
 
       return token;
     },
     session({ session, token }) {
-      session.backendToken = token.backendToken as string;
+      session.backendToken = token.backendToken;
+
       return session;
     },
   },

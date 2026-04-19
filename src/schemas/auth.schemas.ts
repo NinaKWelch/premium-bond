@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const loginResponseSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  token: z.string(),
+});
+
 export const loginSchema = z.object({
   email: z.email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
