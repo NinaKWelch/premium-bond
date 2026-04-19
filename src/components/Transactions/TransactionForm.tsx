@@ -1,6 +1,7 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useCallback, useEffect, useRef, useMemo } from 'react';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -12,32 +13,57 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
 import type { TTransactionFormValues, TNewTransaction } from '#types/bonds';
-import { transactionFormSchema } from '#schemas/bonds.schemas';
+import { createTransactionFormSchema } from '#schemas/bonds.schemas';
 import { MONTHS, YEARS, toYearMonth } from '#utils/date';
 import { MIN_TRANSACTION_AMOUNT, MAX_TRANSACTION_AMOUNT } from '#constants';
 
 interface ITransactionFormProps {
   onSubmit: (data: TNewTransaction) => Promise<void>;
+  balance: number;
 }
 
-const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
+const TransactionForm = ({ onSubmit, balance }: ITransactionFormProps) => {
+  const schema = useMemo(() => createTransactionFormSchema(balance), [balance]);
+
   const {
     register,
     control,
     handleSubmit,
     reset,
-    formState: { errors, isValid, isSubmitting },
+    setError,
+    trigger,
+    formState: { errors, isValid, isSubmitting, touchedFields },
   } = useForm({
-    resolver: zodResolver(transactionFormSchema),
+    resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: { type: 'deposit' as const, month: '', year: '' },
   });
 
-  const submit = async ({ month, year, amount, type }: TTransactionFormValues) => {
-    await onSubmit({ date: toYearMonth(year, month), amount, type });
+  const watchedType = useWatch({ control, name: 'type' });
 
-    reset();
-  };
+  // Re-validate amount when type changes, but not on the initial mount
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    void trigger('amount');
+  }, [watchedType, trigger]);
+
+  const submit = useCallback(
+    async ({ month, year, amount, type }: TTransactionFormValues) => {
+      try {
+        await onSubmit({ date: toYearMonth(year, month), amount, type });
+        reset();
+      } catch (err) {
+        setError('amount', {
+          message: err instanceof Error ? err.message : 'Failed to add transaction',
+        });
+      }
+    },
+    [onSubmit, reset, setError],
+  );
 
   return (
     <form onSubmit={handleSubmit(submit)} noValidate>
@@ -47,7 +73,7 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
             name="month"
             control={control}
             render={({ field }) => (
-              <FormControl fullWidth error={!!errors.month}>
+              <FormControl fullWidth error={!!errors.month && !!touchedFields.month}>
                 <InputLabel id="txn-month-label">Month</InputLabel>
                 <Select labelId="txn-month-label" label="Month" {...field} value={field.value}>
                   {MONTHS.map((m) => (
@@ -56,7 +82,9 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
                     </MenuItem>
                   ))}
                 </Select>
-                {errors.month && <FormHelperText>{errors.month.message}</FormHelperText>}
+                {errors.month && touchedFields.month && (
+                  <FormHelperText>{errors.month.message}</FormHelperText>
+                )}
               </FormControl>
             )}
           />
@@ -65,7 +93,7 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
             name="year"
             control={control}
             render={({ field }) => (
-              <FormControl fullWidth error={!!errors.year}>
+              <FormControl fullWidth error={!!errors.year && !!touchedFields.year}>
                 <InputLabel id="txn-year-label">Year</InputLabel>
                 <Select labelId="txn-year-label" label="Year" {...field} value={field.value}>
                   {YEARS.map((y) => (
@@ -74,7 +102,9 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
                     </MenuItem>
                   ))}
                 </Select>
-                {errors.year && <FormHelperText>{errors.year.message}</FormHelperText>}
+                {errors.year && touchedFields.year && (
+                  <FormHelperText>{errors.year.message}</FormHelperText>
+                )}
               </FormControl>
             )}
           />
@@ -87,8 +117,8 @@ const TransactionForm = ({ onSubmit }: ITransactionFormProps) => {
           slotProps={{
             htmlInput: { min: MIN_TRANSACTION_AMOUNT, max: MAX_TRANSACTION_AMOUNT, step: 1 },
           }}
-          error={!!errors.amount}
-          helperText={errors.amount?.message}
+          error={!!errors.amount && !!touchedFields.amount}
+          helperText={touchedFields.amount ? errors.amount?.message : undefined}
           {...register('amount')}
         />
 

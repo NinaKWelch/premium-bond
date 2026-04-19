@@ -7,14 +7,15 @@ import TransactionForm from './TransactionForm';
 
 interface ITransactionsProps {
   onSubmit: (data: TNewTransaction) => Promise<void>;
+  balance: number;
 }
 
-const Transactions = ({ onSubmit }: ITransactionsProps) => (
+const Transactions = ({ onSubmit, balance }: ITransactionsProps) => (
   <Box>
     <Typography variant="h5" component="h2" gutterBottom>
       Transactions
     </Typography>
-    <TransactionForm onSubmit={onSubmit} />
+    <TransactionForm onSubmit={onSubmit} balance={balance} />
   </Box>
 );
 

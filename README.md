@@ -1,13 +1,13 @@
 # Premium Bonds Tracker
 
-A React frontend for tracking UK NS&I Premium Bond investments and prizes, and calculating your actual effective interest rate.
+A Next.js frontend for tracking UK NS&I Premium Bond investments and prizes, and calculating your actual effective interest rate.
 
 ## Tech stack
 
-- React 19 + TypeScript
-- Vite
+- Next.js 15 (App Router) + TypeScript
+- NextAuth v5 (Auth.js) — credentials-based authentication with JWT sessions
 - MUI v9
-- react-hook-form
+- react-hook-form + Zod
 - Vitest + Testing Library
 
 ## Getting started
@@ -22,7 +22,14 @@ A React frontend for tracking UK NS&I Premium Bond investments and prizes, and c
 Create a `.env` file in the project root:
 
 ```
-VITE_API_BASE_URL=http://localhost:3000
+API_BASE_URL=http://localhost:3000/api
+AUTH_SECRET=your-secret-here
+```
+
+Generate a strong `AUTH_SECRET` with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 ### Install and run
@@ -32,7 +39,7 @@ npm install
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+The app will be available at `http://localhost:3001` (Next.js uses 3001 if 3000 is taken by the API).
 
 ## Scripts
 
@@ -40,7 +47,7 @@ The app will be available at `http://localhost:5173`.
 | -------------------- | ----------------------------------- |
 | `npm run dev`        | Start development server            |
 | `npm run build`      | Type-check and build for production |
-| `npm run preview`    | Preview production build            |
+| `npm start`          | Run production build                |
 | `npm test`           | Run tests                           |
 | `npm run test:watch` | Run tests in watch mode             |
 | `npm run lint`       | Lint all files                      |
@@ -48,22 +55,35 @@ The app will be available at `http://localhost:5173`.
 
 ## Features
 
-- **Transactions** — record deposits and withdrawals with date and amount
+- **Guest mode** — try the full UI without an account; data is stored in localStorage
+- **Authentication** — register or log in; session persists across server and client pages via NextAuth
+- **Transactions** — record deposits, withdrawals, and reinvested prizes with date and amount
 - **Prizes** — log prizes won each month; optionally mark a prize as reinvested (automatically adds a deposit transaction)
-- **Activity** — view, edit, and delete all transactions and prizes in one list
+- **Activity** — view, edit, and delete all transactions and prizes in a single chronological list
+- **Delete protection** — deposits cannot be deleted if a withdrawal or prize depends on them; the dialog explains what to remove first
 - **Results** — calculate year-by-year effective interest rate and overall average
-- **Simple calculator** — estimate effective rate from total invested, total prizes, and start date without needing the backend
+- **Simple calculator** — estimate effective rate from total invested, total prizes, and start date without needing an account
 - **Export** — download transactions and prizes as CSV
 - **Print** — print a results summary
 
 ## Project structure
 
 ```
+app/                    # Next.js App Router pages and layouts
+├── api/auth/           # NextAuth route handler
+├── actions.ts          # Server actions (guest mode cookie)
+├── dashboard/          # Main tracker page (protected)
+├── login/              # Login page
+└── register/           # Register page
 src/
-├── api/            # Fetch wrappers for each backend endpoint
-├── components/     # UI components grouped by feature
-├── constants/      # Shared numeric and string constants
-├── context/        # BondsContext — global state and API calls
-├── types/          # Shared TypeScript types
-└── utils/          # Pure utility functions (date helpers, rate estimator, file download)
+├── api/                # Fetch wrappers for each backend endpoint
+├── components/         # UI components grouped by feature
+├── constants/          # Shared numeric and string constants
+├── context/            # BondsContext — global state, API and localStorage calls
+├── schemas/            # Zod validation schemas (bonds and auth forms)
+├── store/              # localStorage store for guest mode
+├── types/              # Shared TypeScript types
+└── utils/              # Pure utility functions (date helpers, calculator, rate estimator, file download)
+auth.ts                 # NextAuth configuration
+middleware.ts           # Route protection (redirects unauthenticated users)
 ```

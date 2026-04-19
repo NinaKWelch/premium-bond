@@ -84,7 +84,7 @@ describe('bonds api', () => {
     it('posts to the transactions endpoint', async () => {
       mockFetch.mockReturnValue(okResponse({}));
 
-      await addTransaction(mockNewTransaction);
+      await addTransaction(null, mockNewTransaction);
 
       expect(mockFetch).toHaveBeenCalledWith(
         `${API_BASE}/transactions`,
@@ -99,7 +99,7 @@ describe('bonds api', () => {
     it('throws with the error message from the api on failure', async () => {
       mockFetch.mockReturnValue(errorResponse(mockError));
 
-      await expect(addTransaction(mockNewTransaction)).rejects.toThrow(mockErrorMessage);
+      await expect(addTransaction(null, mockNewTransaction)).rejects.toThrow(mockErrorMessage);
     });
   });
 
@@ -109,7 +109,7 @@ describe('bonds api', () => {
     it('posts to the prizes endpoint', async () => {
       mockFetch.mockReturnValue(okResponse({}));
 
-      await addPrize(mockNewPrize);
+      await addPrize(null, mockNewPrize);
 
       expect(mockFetch).toHaveBeenCalledWith(
         `${API_BASE}/prizes`,
@@ -126,7 +126,7 @@ describe('bonds api', () => {
         errorResponse({ error: 'Prize date must be in a later month than the first deposit' }),
       );
 
-      await expect(addPrize(mockNewPrize)).rejects.toThrow(
+      await expect(addPrize(null, mockNewPrize)).rejects.toThrow(
         'Prize date must be in a later month than the first deposit',
       );
     });

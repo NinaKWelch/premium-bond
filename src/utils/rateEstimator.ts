@@ -2,7 +2,12 @@ import type { TSimpleResult } from '#types/bonds';
 
 /**
  * Estimates the effective annual rate of return from Premium Bond prizes.
- * Uses elapsed time from the first investment month to today.
+ *
+ * Calculates elapsed time in fractional years from the first investment month
+ * to today (using 365.25 days/year to account for leap years), then divides
+ * total prizes by total invested and time held to produce an annualised rate.
+ *
+ * Returns the elapsed years alongside the rate so callers can display both.
  */
 export const estimateEffectiveRate = (
   firstInvestmentMonth: string,

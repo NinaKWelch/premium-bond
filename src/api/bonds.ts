@@ -6,7 +6,7 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 if (!API_BASE) {
   throw new Error(
-    'NEXT_PUBLIC_API_BASE_URL is not set. Copy .env.example to .env and set the value.',
+    'NEXT_PUBLIC_API_BASE_URL is not set. Copy .env.local.example to .env.local and set the value.',
   );
 }
 
@@ -24,8 +24,19 @@ const parseError = async (res: Response, fallback: string): Promise<string> => {
   }
 };
 
-export const getTransactions = async (): Promise<TTransaction[]> => {
-  const res = await fetch(`${API_BASE}/transactions`);
+const authFetch = (url: string, token: string | null, init?: RequestInit): Promise<Response> => {
+  if (!token) {
+    return init ? fetch(url, init) : fetch(url);
+  }
+
+  const headers = new Headers(init?.headers);
+  headers.set('Authorization', `Bearer ${token}`);
+
+  return fetch(url, { ...init, headers });
+};
+
+export const getTransactions = async (token: string | null = null): Promise<TTransaction[]> => {
+  const res = await authFetch(`${API_BASE}/transactions`, token);
 
   if (!res.ok) {
     throw new Error(await parseError(res, 'Failed to fetch transactions'));
@@ -34,8 +45,8 @@ export const getTransactions = async (): Promise<TTransaction[]> => {
   return res.json() as Promise<TTransaction[]>;
 };
 
-export const getPrizes = async (): Promise<TPrize[]> => {
-  const res = await fetch(`${API_BASE}/prizes`);
+export const getPrizes = async (token: string | null = null): Promise<TPrize[]> => {
+  const res = await authFetch(`${API_BASE}/prizes`, token);
 
   if (!res.ok) {
     throw new Error(await parseError(res, 'Failed to fetch prizes'));
@@ -44,8 +55,11 @@ export const getPrizes = async (): Promise<TPrize[]> => {
   return res.json() as Promise<TPrize[]>;
 };
 
-export const addTransaction = async (data: TNewTransaction): Promise<void> => {
-  const res = await fetch(`${API_BASE}/transactions`, {
+export const addTransaction = async (
+  token: string | null = null,
+  data: TNewTransaction,
+): Promise<void> => {
+  const res = await authFetch(`${API_BASE}/transactions`, token, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -56,8 +70,8 @@ export const addTransaction = async (data: TNewTransaction): Promise<void> => {
   }
 };
 
-export const addPrize = async (data: TNewPrize): Promise<void> => {
-  const res = await fetch(`${API_BASE}/prizes`, {
+export const addPrize = async (token: string | null = null, data: TNewPrize): Promise<void> => {
+  const res = await authFetch(`${API_BASE}/prizes`, token, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -68,8 +82,12 @@ export const addPrize = async (data: TNewPrize): Promise<void> => {
   }
 };
 
-export const updateTransaction = async (id: string, data: TNewTransaction): Promise<void> => {
-  const res = await fetch(`${API_BASE}/transactions/${id}`, {
+export const updateTransaction = async (
+  token: string | null = null,
+  id: string,
+  data: TNewTransaction,
+): Promise<void> => {
+  const res = await authFetch(`${API_BASE}/transactions/${id}`, token, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -80,16 +98,20 @@ export const updateTransaction = async (id: string, data: TNewTransaction): Prom
   }
 };
 
-export const deleteTransaction = async (id: string): Promise<void> => {
-  const res = await fetch(`${API_BASE}/transactions/${id}`, { method: 'DELETE' });
+export const deleteTransaction = async (token: string | null = null, id: string): Promise<void> => {
+  const res = await authFetch(`${API_BASE}/transactions/${id}`, token, { method: 'DELETE' });
 
   if (!res.ok) {
     throw new Error(await parseError(res, 'Failed to delete transaction'));
   }
 };
 
-export const updatePrize = async (id: string, data: TNewPrize): Promise<void> => {
-  const res = await fetch(`${API_BASE}/prizes/${id}`, {
+export const updatePrize = async (
+  token: string | null = null,
+  id: string,
+  data: TNewPrize,
+): Promise<void> => {
+  const res = await authFetch(`${API_BASE}/prizes/${id}`, token, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -100,16 +122,16 @@ export const updatePrize = async (id: string, data: TNewPrize): Promise<void> =>
   }
 };
 
-export const deletePrize = async (id: string): Promise<void> => {
-  const res = await fetch(`${API_BASE}/prizes/${id}`, { method: 'DELETE' });
+export const deletePrize = async (token: string | null = null, id: string): Promise<void> => {
+  const res = await authFetch(`${API_BASE}/prizes/${id}`, token, { method: 'DELETE' });
 
   if (!res.ok) {
     throw new Error(await parseError(res, 'Failed to delete prize'));
   }
 };
 
-export const calculate = async (): Promise<TResults> => {
-  const res = await fetch(`${API_BASE}/calculate`);
+export const calculate = async (token: string | null = null): Promise<TResults> => {
+  const res = await authFetch(`${API_BASE}/calculate`, token);
 
   if (!res.ok) {
     throw new Error(await parseError(res, 'Failed to calculate'));

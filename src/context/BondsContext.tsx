@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import {
   getTransactions,
   getPrizes,
@@ -12,6 +13,7 @@ import {
   deletePrize,
   calculate,
 } from '#api/bonds';
+import { localBondsStore } from '#store/localBondsStore';
 import type {
   TTransaction,
   TPrize,
@@ -24,6 +26,10 @@ import { toYearMonth } from '#utils/date';
 import BondsContext from './bondsContextDef';
 
 export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
+  const { data: session, status } = useSession();
+  const token = session?.backendToken ?? null;
+  const isGuest = status === 'unauthenticated';
+
   const [transactions, setTransactions] = useState<TTransaction[]>([]);
   const [prizes, setPrizes] = useState<TPrize[]>([]);
   const [results, setResults] = useState<TResults | null>(null);
@@ -38,43 +44,54 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchTransactions = useCallback(async () => {
     try {
-      setTransactions(await getTransactions());
+      const data = isGuest ? localBondsStore.getTransactions() : await getTransactions(token);
+      setTransactions(data);
     } catch (err) {
       showError(err, 'Failed to fetch transactions');
     }
-  }, []);
+  }, [isGuest, token]);
 
   const fetchPrizes = useCallback(async () => {
     try {
-      setPrizes(await getPrizes());
+      const data = isGuest ? localBondsStore.getPrizes() : await getPrizes(token);
+      setPrizes(data);
     } catch (err) {
       showError(err, 'Failed to fetch prizes');
     }
-  }, []);
+  }, [isGuest, token]);
 
   useEffect(() => {
+    if (status === 'loading') {
+      return;
+    }
     void fetchTransactions();
     void fetchPrizes();
-  }, [fetchTransactions, fetchPrizes]);
+  }, [status, fetchTransactions, fetchPrizes]);
 
   useEffect(() => {
     if (pendingPrint && results) {
       setPendingPrint(false);
-
       window.print();
     }
   }, [pendingPrint, results]);
 
   const handleTransactionSubmit = async (data: TNewTransaction) => {
-    await addTransaction(data);
-
+    if (isGuest) {
+      localBondsStore.addTransaction(data);
+    } else {
+      await addTransaction(token, data);
+    }
     void fetchTransactions();
     setResults(null);
   };
 
   const handleTransactionUpdate = async (id: string, data: TNewTransaction) => {
     try {
-      await updateTransaction(id, data);
+      if (isGuest) {
+        localBondsStore.updateTransaction(id, data);
+      } else {
+        await updateTransaction(token, id, data);
+      }
 
       void fetchTransactions();
       setResults(null);
@@ -84,20 +101,24 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handleTransactionDelete = async (id: string) => {
-    try {
-      await deleteTransaction(id);
-
-      void fetchTransactions();
-      setResults(null);
-    } catch (err) {
-      showError(err, 'Failed to delete transaction');
+    if (isGuest) {
+      localBondsStore.deleteTransaction(id);
+    } else {
+      await deleteTransaction(token, id);
     }
+
+    void fetchTransactions();
+    setResults(null);
   };
 
   const handlePrizeSubmit = async ({ month, year, amount, reinvested }: TPrizeFormValues) => {
     const date = toYearMonth(year, month);
     try {
-      await addPrize({ date, amount });
+      if (isGuest) {
+        localBondsStore.addPrize({ date, amount });
+      } else {
+        await addPrize(token, { date, amount });
+      }
     } catch (err) {
       showError(err, 'Failed to add prize');
       return;
@@ -105,12 +126,16 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (reinvested) {
       try {
-        await addTransaction({ date, amount, type: 'reinvestment' });
+        if (isGuest) {
+          localBondsStore.addTransaction({ date, amount, type: 'reinvestment' });
+        } else {
+          await addTransaction(token, { date, amount, type: 'reinvestment' });
+        }
+
+        void fetchTransactions();
       } catch (err) {
         showError(err, 'Prize saved but failed to add reinvestment transaction');
       }
-
-      void fetchTransactions();
     }
 
     void fetchPrizes();
@@ -119,7 +144,11 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handlePrizeUpdate = async (id: string, data: TNewPrize) => {
     try {
-      await updatePrize(id, data);
+      if (isGuest) {
+        localBondsStore.updatePrize(id, data);
+      } else {
+        await updatePrize(token, id, data);
+      }
 
       void fetchPrizes();
       setResults(null);
@@ -129,20 +158,21 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handlePrizeDelete = async (id: string) => {
-    try {
-      await deletePrize(id);
-
-      void fetchPrizes();
-      setResults(null);
-    } catch (err) {
-      showError(err, 'Failed to delete prize');
+    if (isGuest) {
+      localBondsStore.deletePrize(id);
+    } else {
+      await deletePrize(token, id);
     }
+
+    void fetchPrizes();
+    setResults(null);
   };
 
   const handleCalculate = async () => {
     setCalculating(true);
     try {
-      setResults(await calculate());
+      const data = isGuest ? localBondsStore.calculate() : await calculate(token);
+      setResults(data);
     } catch (err) {
       showError(err, 'Failed to calculate');
     } finally {
@@ -155,7 +185,6 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
       window.print();
     } else {
       await handleCalculate();
-
       setPendingPrint(true);
     }
   };

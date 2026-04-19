@@ -134,6 +134,7 @@ const ActivityList = ({
   onDeletePrize,
 }: IActivityListProps) => {
   const [deleteTarget, setDeleteTarget] = useState<TActivityItem | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editTarget, setEditTarget] = useState<TActivityItem | null>(null);
 
   const {
@@ -198,13 +199,17 @@ const ActivityList = ({
       return;
     }
 
-    if (deleteTarget.itemType === 'transaction') {
-      await onDeleteTransaction(deleteTarget.id);
-    } else {
-      await onDeletePrize(deleteTarget.id);
+    try {
+      if (deleteTarget.itemType === 'transaction') {
+        await onDeleteTransaction(deleteTarget.id);
+      } else {
+        await onDeletePrize(deleteTarget.id);
+      }
+      setDeleteTarget(null);
+      setDeleteError(null);
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete');
     }
-
-    setDeleteTarget(null);
   };
 
   if (items.length === 0) {
@@ -314,21 +319,40 @@ const ActivityList = ({
       </Table>
 
       {/* Delete confirmation dialog */}
-      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+      <Dialog
+        open={!!deleteTarget}
+        onClose={() => {
+          setDeleteTarget(null);
+          setDeleteError(null);
+        }}
+      >
         <DialogTitle>Delete {deleteTarget?.itemType}?</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            This will permanently remove the{' '}
-            {deleteTarget && 'type' in deleteTarget ? deleteTarget.type : 'prize'} of £
-            {deleteTarget?.amount.toFixed(2)} on {formatYearMonth(deleteTarget?.date ?? '')}. This
-            cannot be undone.
-          </DialogContentText>
+          {deleteError ? (
+            <DialogContentText color="error">{deleteError}</DialogContentText>
+          ) : (
+            <DialogContentText>
+              This will permanently remove the{' '}
+              {deleteTarget && 'type' in deleteTarget ? deleteTarget.type : 'prize'} of £
+              {deleteTarget?.amount.toFixed(2)} on {formatYearMonth(deleteTarget?.date ?? '')}. This
+              cannot be undone.
+            </DialogContentText>
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button color="error" onClick={handleDeleteConfirm}>
-            Delete
+          <Button
+            onClick={() => {
+              setDeleteTarget(null);
+              setDeleteError(null);
+            }}
+          >
+            Cancel
           </Button>
+          {!deleteError && (
+            <Button color="error" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 

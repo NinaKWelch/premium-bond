@@ -19,20 +19,31 @@ const futureMonthRefinement = (data: { month: string; year: string }, ctx: z.Ref
   }
 };
 
-export const transactionFormSchema = z
-  .object({
-    month: z.string().min(1, 'Month is required'),
-    year: yearSchema,
-    amount: z.coerce
-      .number()
-      .min(MIN_TRANSACTION_AMOUNT, `Amount must be at least £${MIN_TRANSACTION_AMOUNT}`)
-      .max(
-        MAX_TRANSACTION_AMOUNT,
-        `Maximum holding is £${MAX_TRANSACTION_AMOUNT.toLocaleString()}`,
-      ),
-    type: z.enum(['deposit', 'withdrawal']),
-  })
-  .superRefine(futureMonthRefinement);
+const baseTransactionSchema = z.object({
+  month: z.string().min(1, 'Month is required'),
+  year: yearSchema,
+  amount: z.coerce
+    .number()
+    .min(MIN_TRANSACTION_AMOUNT, `Amount must be at least £${MIN_TRANSACTION_AMOUNT}`)
+    .max(MAX_TRANSACTION_AMOUNT, `Maximum holding is £${MAX_TRANSACTION_AMOUNT.toLocaleString()}`),
+  type: z.enum(['deposit', 'withdrawal']),
+});
+
+// Static export used for type inference only
+export const transactionFormSchema = baseTransactionSchema.superRefine(futureMonthRefinement);
+
+// Factory used by the form — includes balance-aware withdrawal check
+export const createTransactionFormSchema = (balance: number) =>
+  baseTransactionSchema.superRefine((data, ctx) => {
+    futureMonthRefinement(data, ctx);
+    if (data.type === 'withdrawal' && data.amount > balance) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['amount'],
+        message: 'You cannot withdraw more than you have deposited before this date',
+      });
+    }
+  });
 
 export const prizeFormSchema = z
   .object({

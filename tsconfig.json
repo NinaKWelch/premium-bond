@@ -24,6 +24,7 @@
       "#context/*": ["./src/context/*"],
       "#schemas/*": ["./src/schemas/*"],
       "#types/*": ["./src/types/*"],
+      "#store/*": ["./src/store/*"],
       "#utils/*": ["./src/utils/*"]
     }
   },

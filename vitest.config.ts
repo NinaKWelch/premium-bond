@@ -12,6 +12,7 @@ export default defineConfig({
       '#context': resolve(import.meta.dirname, 'src/context'),
       '#schemas': resolve(import.meta.dirname, 'src/schemas'),
       '#types': resolve(import.meta.dirname, 'src/types'),
+      '#store': resolve(import.meta.dirname, 'src/store'),
       '#utils': resolve(import.meta.dirname, 'src/utils'),
     },
   },
@@ -19,6 +20,7 @@ export default defineConfig({
     environment: 'node',
     env: {
       NEXT_PUBLIC_API_BASE_URL: 'http://localhost:3000/api/bonds',
+      TZ: 'UTC',
     },
   },
 });
