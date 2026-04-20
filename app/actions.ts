@@ -3,7 +3,13 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export async function continueAsGuest() {
+export const clearGuestCookie = async () => {
+  const cookieStore = await cookies();
+
+  cookieStore.delete('pb_guest');
+};
+
+export const continueAsGuest = async () => {
   const cookieStore = await cookies();
 
   cookieStore.set('pb_guest', 'true', {
@@ -14,4 +20,4 @@ export async function continueAsGuest() {
   });
 
   redirect('/premium-bonds/interest-tracker');
-}
+};

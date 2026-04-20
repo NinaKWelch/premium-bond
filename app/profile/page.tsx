@@ -17,6 +17,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Header from '#components/Header';
 import { deleteAccount } from '#api/users';
+import { clearGuestCookie } from '../actions';
 
 const ProfilePage = () => {
   const { data: session } = useSession();
@@ -34,6 +35,7 @@ const ProfilePage = () => {
 
     try {
       await deleteAccount(session.backendToken);
+      await clearGuestCookie();
       await signOut({ callbackUrl: '/' });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete account');
@@ -60,7 +62,10 @@ const ProfilePage = () => {
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
               Account
             </Typography>
-            <Button variant="outlined" onClick={() => void signOut({ callbackUrl: '/login' })}>
+            <Button
+              variant="outlined"
+              onClick={() => void clearGuestCookie().then(() => signOut({ callbackUrl: '/login' }))}
+            >
               Sign out
             </Button>
           </Box>

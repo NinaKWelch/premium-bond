@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'Calculate the actual interest rate you earned from UK NS&I Premium Bonds based on your real deposits, withdrawals, and prizes.',
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
 
   return (
@@ -21,4 +21,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

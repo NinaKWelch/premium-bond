@@ -15,6 +15,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { registerSchema, type TRegisterFormValues } from '#schemas/auth.schemas';
+import { clearGuestCookie } from '../../../app/actions';
 import { localBondsStore } from '#store/localBondsStore';
 import { addTransaction, addPrize } from '#api/bonds';
 
@@ -79,6 +80,7 @@ const RegisterForm = () => {
       }
     }
 
+    await clearGuestCookie();
     router.push('/premium-bonds/interest-tracker');
   };
 

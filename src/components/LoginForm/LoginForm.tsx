@@ -16,7 +16,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { loginSchema, type TLoginFormValues } from '#schemas/auth.schemas';
-import { continueAsGuest } from '../../../app/actions';
+import { continueAsGuest, clearGuestCookie } from '../../../app/actions';
 
 const LoginForm = () => {
   const router = useRouter();
@@ -38,6 +38,7 @@ const LoginForm = () => {
     if (result.error) {
       setServerError('Invalid email or password');
     } else {
+      await clearGuestCookie();
       router.push('/premium-bonds/interest-tracker');
     }
   };
