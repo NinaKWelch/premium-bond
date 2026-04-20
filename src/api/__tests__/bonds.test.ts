@@ -7,21 +7,7 @@ import {
   addPrize,
   calculate,
 } from '../bonds';
-
-const okResponse = (body: unknown) => {
-  return Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve(body),
-  } as Response);
-};
-
-const errorResponse = (body: unknown, status = 400) => {
-  return Promise.resolve({
-    ok: false,
-    status,
-    json: () => Promise.resolve(body),
-  } as Response);
-};
+import { okResponse, errorResponse } from './apiTestHelpers';
 
 describe('bonds api', () => {
   const mockErrorMessage = 'Something went wrong';

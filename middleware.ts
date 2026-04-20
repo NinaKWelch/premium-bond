@@ -10,11 +10,15 @@ export default auth((req) => {
     return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
   }
 
+  if (pathname === '/profile' && !isLoggedIn) {
+    return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
+  }
+
   if ((pathname === '/login' || pathname === '/register') && isLoggedIn) {
     return NextResponse.redirect(new URL('/premium-bonds/interest-tracker', req.nextUrl.origin));
   }
 });
 
 export const config = {
-  matcher: ['/premium-bonds/:path*', '/login', '/register'],
+  matcher: ['/premium-bonds/:path*', '/profile', '/login', '/register'],
 };

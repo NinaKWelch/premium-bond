@@ -9,20 +9,20 @@ import Header from '#components/Header';
 import PrintHeader from '#components/PrintHeader';
 import Results from '#components/Results';
 
-export default function DashboardPage() {
-  return (
-    <BondsProvider>
-      <Header />
-      <Container component="main" maxWidth="md" sx={{ py: 4 }}>
-        <PrintHeader />
-        <Stack spacing={4}>
-          <Calculator />
-          <Results />
-          <Divider className="print-hide" />
-          <Activity />
-        </Stack>
-      </Container>
-      <ErrorNotification />
-    </BondsProvider>
-  );
-}
+const InterestTrackerPage = () => (
+  <BondsProvider>
+    <Header />
+    <Container component="main" maxWidth="md" sx={{ py: 4 }}>
+      <PrintHeader />
+      <Stack spacing={4}>
+        <Calculator />
+        <Results />
+        <Divider className="print-hide" />
+        <Activity />
+      </Stack>
+    </Container>
+    <ErrorNotification />
+  </BondsProvider>
+);
+
+export default InterestTrackerPage;

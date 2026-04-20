@@ -62,6 +62,26 @@ describe('middleware', () => {
     });
   });
 
+  describe('/profile', () => {
+    it('redirects to /login when unauthenticated', () => {
+      middleware(makeReq('/profile'));
+
+      expect(mockRedirect).toHaveBeenCalledWith('/login');
+    });
+
+    it('redirects to /login for a guest (guests have no account)', () => {
+      middleware(makeReq('/profile', { isGuest: true }));
+
+      expect(mockRedirect).toHaveBeenCalledWith('/login');
+    });
+
+    it('allows access for a logged-in user', () => {
+      middleware(makeReq('/profile', { isLoggedIn: true }));
+
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+  });
+
   describe('/login', () => {
     it('redirects to /premium-bonds/interest-tracker when already logged in', () => {
       middleware(makeReq('/login', { isLoggedIn: true }));

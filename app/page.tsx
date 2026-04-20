@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Header from '#components/Header';
 import SimpleCalculator from '#components/SimpleCalculator';
 
-export default function HomePage() {
+const HomePage = () => {
   return (
     <>
       <Header />
@@ -38,4 +38,6 @@ export default function HomePage() {
       </Container>
     </>
   );
-}
+};
+
+export default HomePage;
