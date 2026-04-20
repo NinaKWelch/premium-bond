@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -15,6 +15,8 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import NextLink from 'next/link';
 import { registerSchema, type TRegisterFormValues } from '#schemas/auth.schemas';
+import { localBondsStore } from '#store/localBondsStore';
+import { addTransaction, addPrize } from '#api/bonds';
 
 const API_ROOT = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/bonds', '') ?? '';
 
@@ -45,13 +47,39 @@ export default function RegisterPage() {
       return;
     }
 
+    // Capture local data before signing in
+    const localTransactions = localBondsStore.getTransactions();
+    const localPrizes = localBondsStore.getPrizes();
+
     const result = await signIn('credentials', { email, password, redirect: false });
 
     if (result.error) {
       setServerError('Account created but sign-in failed. Please sign in manually.');
-    } else {
-      router.push('/dashboard');
+      return;
     }
+
+    if (localTransactions.length > 0 || localPrizes.length > 0) {
+      const session = await getSession();
+      const token = session?.backendToken ?? null;
+
+      try {
+        await Promise.all([
+          ...localTransactions.map(({ date, amount, type }) =>
+            addTransaction(token, { date, amount, type }),
+          ),
+          ...localPrizes.map(({ date, amount }) => addPrize(token, { date, amount })),
+        ]);
+
+        localBondsStore.clear();
+      } catch {
+        setServerError(
+          'Account created, but your guest data could not be saved. Please add your entries again.',
+        );
+        return;
+      }
+    }
+
+    router.push('/premium-bonds/interest-tracker');
   };
 
   return (

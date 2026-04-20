@@ -22,7 +22,7 @@ export default function HomePage() {
               Use the quick estimator below for a rough figure, or{' '}
               <Typography
                 component="a"
-                href="/dashboard"
+                href="/premium-bonds/interest-tracker"
                 variant="body1"
                 color="primary"
                 sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}

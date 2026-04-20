@@ -6,15 +6,15 @@ export default auth((req) => {
   const isGuest = req.cookies.get('pb_guest')?.value === 'true';
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith('/dashboard') && !isLoggedIn && !isGuest) {
+  if (pathname.startsWith('/premium-bonds') && !isLoggedIn && !isGuest) {
     return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
   }
 
   if ((pathname === '/login' || pathname === '/register') && isLoggedIn) {
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl.origin));
+    return NextResponse.redirect(new URL('/premium-bonds/interest-tracker', req.nextUrl.origin));
   }
 });
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/register'],
+  matcher: ['/premium-bonds/:path*', '/login', '/register'],
 };

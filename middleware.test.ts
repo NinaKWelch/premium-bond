@@ -36,37 +36,37 @@ describe('middleware', () => {
 
   beforeEach(() => mockRedirect.mockClear());
 
-  describe('/dashboard', () => {
+  describe('/premium-bonds/interest-tracker', () => {
     it('redirects to /login when unauthenticated and not a guest', () => {
-      middleware(makeReq('/dashboard'));
+      middleware(makeReq('/premium-bonds/interest-tracker'));
 
       expect(mockRedirect).toHaveBeenCalledWith('/login');
     });
 
-    it('redirects to /login for a nested dashboard path when unauthenticated and not a guest', () => {
-      middleware(makeReq('/dashboard/settings'));
+    it('redirects to /login for a nested path when unauthenticated and not a guest', () => {
+      middleware(makeReq('/premium-bonds/interest-tracker/settings'));
 
       expect(mockRedirect).toHaveBeenCalledWith('/login');
     });
 
     it('allows access for a logged-in user', () => {
-      middleware(makeReq('/dashboard', { isLoggedIn: true }));
+      middleware(makeReq('/premium-bonds/interest-tracker', { isLoggedIn: true }));
 
       expect(mockRedirect).not.toHaveBeenCalled();
     });
 
     it('allows access for a guest (pb_guest cookie)', () => {
-      middleware(makeReq('/dashboard', { isGuest: true }));
+      middleware(makeReq('/premium-bonds/interest-tracker', { isGuest: true }));
 
       expect(mockRedirect).not.toHaveBeenCalled();
     });
   });
 
   describe('/login', () => {
-    it('redirects to /dashboard when already logged in', () => {
+    it('redirects to /premium-bonds/interest-tracker when already logged in', () => {
       middleware(makeReq('/login', { isLoggedIn: true }));
 
-      expect(mockRedirect).toHaveBeenCalledWith('/dashboard');
+      expect(mockRedirect).toHaveBeenCalledWith('/premium-bonds/interest-tracker');
     });
 
     it('allows access when not logged in', () => {
@@ -83,10 +83,10 @@ describe('middleware', () => {
   });
 
   describe('/register', () => {
-    it('redirects to /dashboard when already logged in', () => {
+    it('redirects to /premium-bonds/interest-tracker when already logged in', () => {
       middleware(makeReq('/register', { isLoggedIn: true }));
 
-      expect(mockRedirect).toHaveBeenCalledWith('/dashboard');
+      expect(mockRedirect).toHaveBeenCalledWith('/premium-bonds/interest-tracker');
     });
 
     it('allows access when not logged in', () => {

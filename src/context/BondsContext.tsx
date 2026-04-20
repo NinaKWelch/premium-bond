@@ -192,6 +192,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <BondsContext.Provider
       value={{
+        isGuest,
         transactions,
         prizes,
         results,

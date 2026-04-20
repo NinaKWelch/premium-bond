@@ -13,5 +13,5 @@ export async function continueAsGuest() {
     sameSite: 'lax',
   });
 
-  redirect('/dashboard');
+  redirect('/premium-bonds/interest-tracker');
 }

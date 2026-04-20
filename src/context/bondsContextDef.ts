@@ -11,6 +11,7 @@ import type {
 } from '#types/bonds';
 
 export interface IBondsContext {
+  isGuest: boolean;
   transactions: TTransaction[];
   prizes: TPrize[];
   results: TResults | null;

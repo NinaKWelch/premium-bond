@@ -25,7 +25,7 @@ const SimpleCalculatorResult = ({ result }: ISimpleCalculatorResultProps) => {
       . Keep in mind this is a rough estimate — for a precise year-by-year breakdown, use the{' '}
       <Typography
         component="a"
-        href="/dashboard"
+        href="/premium-bonds/interest-tracker"
         variant="body1"
         color="primary"
         sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}

@@ -38,7 +38,7 @@ export default function LoginPage() {
     if (result.error) {
       setServerError('Invalid email or password');
     } else {
-      router.push('/dashboard');
+      router.push('/premium-bonds/interest-tracker');
     }
   };
 
