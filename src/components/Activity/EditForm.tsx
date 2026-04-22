@@ -1,6 +1,8 @@
 import { Controller } from 'react-hook-form';
 import type { Control, UseFormRegister, FieldErrors, UseFormGetValues } from 'react-hook-form';
+import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -24,6 +26,9 @@ interface IEditFormProps {
   isTransaction: boolean;
   editTarget: TActivityItem | null;
   transactions: TTransaction[];
+  reinvested: boolean;
+  onReinvestedChange: (v: boolean) => void;
+  maxWithdrawal: number;
 }
 
 const EditForm = ({
@@ -34,6 +39,9 @@ const EditForm = ({
   isTransaction,
   editTarget,
   transactions,
+  reinvested,
+  onReinvestedChange,
+  maxWithdrawal,
 }: IEditFormProps) => (
   <Stack spacing={2} sx={{ mt: 1 }}>
     <Stack direction="row" spacing={2}>
@@ -122,8 +130,24 @@ const EditForm = ({
               value: MAX_PRIZE_AMOUNT,
               message: `Maximum prize is £${MAX_PRIZE_AMOUNT.toLocaleString()}`,
             },
+        validate: (value) => {
+          if (isTransaction && getValues('type') === 'withdrawal' && value > maxWithdrawal) {
+            return maxWithdrawal === 0
+              ? 'You have no balance to withdraw'
+              : `You can only withdraw up to £${maxWithdrawal.toLocaleString()}`;
+          }
+          return true;
+        },
       })}
     />
+    {!isTransaction && (
+      <FormControlLabel
+        label="Was this prize reinvested?"
+        control={
+          <Checkbox checked={reinvested} onChange={(e) => onReinvestedChange(e.target.checked)} />
+        }
+      />
+    )}
     {isTransaction && (
       <Controller
         name="type"

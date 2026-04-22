@@ -241,7 +241,6 @@ describe('BondsProvider()', () => {
       ).rejects.toThrow('Cannot delete');
     });
   });
-  // -----------------------------------------------------------------------
 
   describe('handlePrizeSubmit()', () => {
     it('calls addPrize and refreshes prizes', async () => {
@@ -328,16 +327,18 @@ describe('BondsProvider()', () => {
   });
 
   describe('handlePrizeUpdate()', () => {
+    const prizeData = { date: '2024-04', amount: 50 };
+
     it('calls updatePrize and refreshes prizes', async () => {
       const { result } = renderHook(() => useBonds(), { wrapper });
 
       await act(async () => {});
 
       await act(async () => {
-        await result.current.handlePrizeUpdate('2', { date: '2024-04', amount: 50 });
+        await result.current.handlePrizeUpdate('2', prizeData, false, null);
       });
 
-      expect(mockUpdatePrize).toHaveBeenCalledWith(TOKEN, '2', { date: '2024-04', amount: 50 });
+      expect(mockUpdatePrize).toHaveBeenCalledWith(TOKEN, '2', prizeData);
       expect(mockGetPrizes).toHaveBeenCalledTimes(2);
     });
 
@@ -349,10 +350,69 @@ describe('BondsProvider()', () => {
       await act(async () => {});
 
       await act(async () => {
-        await result.current.handlePrizeUpdate('2', { date: '2024-04', amount: 50 });
+        await result.current.handlePrizeUpdate('2', prizeData, false, null);
       });
 
       expect(result.current.errorMessage).toBe('Not found');
+    });
+
+    it('updates the existing reinvestment transaction when reinvested stays true', async () => {
+      const { result } = renderHook(() => useBonds(), { wrapper });
+
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.handlePrizeUpdate('2', prizeData, true, 'reinvest-1');
+      });
+
+      expect(mockUpdateTransaction).toHaveBeenCalledWith(TOKEN, 'reinvest-1', {
+        date: prizeData.date,
+        amount: prizeData.amount,
+        type: 'reinvestment',
+      });
+      expect(mockGetTransactions).toHaveBeenCalledTimes(2);
+    });
+
+    it('adds a new reinvestment transaction when reinvested is newly checked', async () => {
+      const { result } = renderHook(() => useBonds(), { wrapper });
+
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.handlePrizeUpdate('2', prizeData, true, null);
+      });
+
+      expect(mockAddTransaction).toHaveBeenCalledWith(TOKEN, {
+        date: prizeData.date,
+        amount: prizeData.amount,
+        type: 'reinvestment',
+      });
+    });
+
+    it('deletes the reinvestment transaction when reinvested is unchecked', async () => {
+      const { result } = renderHook(() => useBonds(), { wrapper });
+
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.handlePrizeUpdate('2', prizeData, false, 'reinvest-1');
+      });
+
+      expect(mockDeleteTransaction).toHaveBeenCalledWith(TOKEN, 'reinvest-1');
+    });
+
+    it('sets errorMessage when updating the linked reinvestment fails', async () => {
+      mockUpdateTransaction.mockRejectedValue(new Error('Reinvestment error'));
+
+      const { result } = renderHook(() => useBonds(), { wrapper });
+
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.handlePrizeUpdate('2', prizeData, true, 'reinvest-1');
+      });
+
+      expect(result.current.errorMessage).toBe('Prize updated but failed to update reinvestment');
     });
   });
 
@@ -384,10 +444,6 @@ describe('BondsProvider()', () => {
       ).rejects.toThrow('Cannot delete');
     });
   });
-
-  // ---------------------------------------------------------------------------
-  // Calculate
-  // ---------------------------------------------------------------------------
 
   describe('handleCalculate()', () => {
     it('sets results on success', async () => {
@@ -430,10 +486,6 @@ describe('BondsProvider()', () => {
       expect(result.current.results).toBeNull();
     });
   });
-
-  // ---------------------------------------------------------------------------
-  // useBonds outside provider
-  // ---------------------------------------------------------------------------
 
   describe('useBonds()', () => {
     it('throws when used outside BondsProvider', () => {

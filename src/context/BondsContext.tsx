@@ -142,19 +142,74 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
     setResults(null);
   };
 
-  const handlePrizeUpdate = async (id: string, data: TNewPrize) => {
+  const handlePrizeUpdate = async (
+    id: string,
+    data: TNewPrize,
+    reinvested: boolean,
+    existingReinvestmentId: string | null,
+  ) => {
     try {
       if (isGuest) {
         localBondsStore.updatePrize(id, data);
       } else {
         await updatePrize(token, id, data);
       }
-
-      void fetchPrizes();
-      setResults(null);
     } catch (err) {
       showError(err, 'Failed to update prize');
+      return;
     }
+
+    if (reinvested && existingReinvestmentId) {
+      try {
+        if (isGuest) {
+          localBondsStore.updateTransaction(existingReinvestmentId, {
+            date: data.date,
+            amount: data.amount,
+            type: 'reinvestment',
+          });
+        } else {
+          await updateTransaction(token, existingReinvestmentId, {
+            date: data.date,
+            amount: data.amount,
+            type: 'reinvestment',
+          });
+        }
+      } catch (err) {
+        showError(err, 'Prize updated but failed to update reinvestment');
+      }
+    } else if (reinvested && !existingReinvestmentId) {
+      try {
+        if (isGuest) {
+          localBondsStore.addTransaction({
+            date: data.date,
+            amount: data.amount,
+            type: 'reinvestment',
+          });
+        } else {
+          await addTransaction(token, {
+            date: data.date,
+            amount: data.amount,
+            type: 'reinvestment',
+          });
+        }
+      } catch (err) {
+        showError(err, 'Prize updated but failed to add reinvestment');
+      }
+    } else if (!reinvested && existingReinvestmentId) {
+      try {
+        if (isGuest) {
+          localBondsStore.deleteTransaction(existingReinvestmentId);
+        } else {
+          await deleteTransaction(token, existingReinvestmentId);
+        }
+      } catch (err) {
+        showError(err, 'Prize updated but failed to remove reinvestment');
+      }
+    }
+
+    void fetchTransactions();
+    void fetchPrizes();
+    setResults(null);
   };
 
   const handlePrizeDelete = async (id: string) => {

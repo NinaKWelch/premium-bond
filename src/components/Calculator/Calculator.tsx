@@ -14,11 +14,6 @@ const Calculator = () => {
     transactions.filter((t) => t.type === 'deposit').sort((a, b) => a.date.localeCompare(b.date))[0]
       ?.date ?? null;
 
-  const balance = transactions.reduce(
-    (sum, t) => (t.type === 'withdrawal' ? sum - t.amount : sum + t.amount),
-    0,
-  );
-
   return (
     <>
       <Box className="print-hide">
@@ -39,7 +34,7 @@ const Calculator = () => {
       </Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={4} className="print-hide">
         <Box sx={{ flex: 1 }}>
-          <Transactions onSubmit={handleTransactionSubmit} balance={balance} />
+          <Transactions onSubmit={handleTransactionSubmit} transactions={transactions} />
         </Box>
         <Box sx={{ flex: 1 }}>
           <Prizes onSubmit={handlePrizeSubmit} firstDepositDate={firstDepositDate} />

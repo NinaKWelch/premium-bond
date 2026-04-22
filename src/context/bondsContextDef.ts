@@ -22,7 +22,12 @@ export interface IBondsContext {
   handleTransactionUpdate: (id: string, data: TNewTransaction) => Promise<void>;
   handleTransactionDelete: (id: string) => Promise<void>;
   handlePrizeSubmit: (data: TPrizeFormValues) => Promise<void>;
-  handlePrizeUpdate: (id: string, data: TNewPrize) => Promise<void>;
+  handlePrizeUpdate: (
+    id: string,
+    data: TNewPrize,
+    reinvested: boolean,
+    existingReinvestmentId: string | null,
+  ) => Promise<void>;
   handlePrizeDelete: (id: string) => Promise<void>;
   handleCalculate: () => Promise<void>;
   handlePrint: () => Promise<void>;

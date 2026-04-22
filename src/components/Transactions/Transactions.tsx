@@ -2,20 +2,20 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import type { TNewTransaction } from '#types/bonds';
+import type { TNewTransaction, TTransaction } from '#types/bonds';
 import TransactionForm from './TransactionForm';
 
 interface ITransactionsProps {
   onSubmit: (data: TNewTransaction) => Promise<void>;
-  balance: number;
+  transactions: TTransaction[];
 }
 
-const Transactions = ({ onSubmit, balance }: ITransactionsProps) => (
+const Transactions = ({ onSubmit, transactions }: ITransactionsProps) => (
   <Box>
     <Typography variant="h5" component="h2" gutterBottom>
       Transactions
     </Typography>
-    <TransactionForm onSubmit={onSubmit} balance={balance} />
+    <TransactionForm onSubmit={onSubmit} transactions={transactions} />
   </Box>
 );
 

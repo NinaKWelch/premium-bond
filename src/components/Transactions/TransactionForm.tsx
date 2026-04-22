@@ -1,8 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useMemo } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import type { Resolver, ResolverOptions } from 'react-hook-form';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -12,18 +14,36 @@ import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import type { TTransactionFormValues, TNewTransaction } from '#types/bonds';
+import type { TTransactionFormValues, TNewTransaction, TTransaction } from '#types/bonds';
 import { createTransactionFormSchema } from '#schemas/bonds.schemas';
 import { MONTHS, YEARS, toYearMonth } from '#utils/date';
 import { MIN_TRANSACTION_AMOUNT, MAX_TRANSACTION_AMOUNT } from '#constants';
 
 interface ITransactionFormProps {
   onSubmit: (data: TNewTransaction) => Promise<void>;
-  balance: number;
+  transactions: TTransaction[];
 }
 
-const TransactionForm = ({ onSubmit, balance }: ITransactionFormProps) => {
-  const schema = useMemo(() => createTransactionFormSchema(balance), [balance]);
+const TransactionForm = ({ onSubmit, transactions }: ITransactionFormProps) => {
+  // Holds the balance at the selected date; updated during render so the
+  // resolver always sees the latest value when trigger() fires in an effect.
+  const balanceRef = useRef(0);
+
+  // z.coerce.number() has input type `unknown` but TTransactionFormValues uses the output
+  // type `number`. The cast is the only way to bridge this zod/react-hook-form coerce gap.
+  const resolver = useCallback(
+    (
+      values: z.input<ReturnType<typeof createTransactionFormSchema>>,
+      context: unknown,
+      options: ResolverOptions<TTransactionFormValues>,
+    ) =>
+      zodResolver(createTransactionFormSchema(balanceRef.current))(
+        values,
+        context,
+        options as ResolverOptions<z.input<ReturnType<typeof createTransactionFormSchema>>>,
+      ),
+    [],
+  ) as Resolver<TTransactionFormValues>;
 
   const {
     register,
@@ -33,15 +53,30 @@ const TransactionForm = ({ onSubmit, balance }: ITransactionFormProps) => {
     setError,
     trigger,
     formState: { errors, isValid, isSubmitting, touchedFields },
-  } = useForm({
-    resolver: zodResolver(schema),
+  } = useForm<TTransactionFormValues>({
+    resolver,
     mode: 'onChange',
-    defaultValues: { type: 'deposit' as const, month: '', year: '' },
+    defaultValues: { type: 'deposit', month: '', year: '' },
   });
 
   const watchedType = useWatch({ control, name: 'type' });
+  const watchedMonth = useWatch({ control, name: 'month' });
+  const watchedYear = useWatch({ control, name: 'year' });
 
-  // Re-validate amount when type changes, but not on the initial mount
+  // Keep balanceRef current. Declared before the trigger effect so React runs
+  // it first when both fire in the same render (effects run in declaration order).
+  useEffect(() => {
+    if (watchedYear && watchedMonth) {
+      const selectedDate = `${watchedYear}-${watchedMonth}`;
+      balanceRef.current = transactions
+        .filter((t) => t.date <= selectedDate)
+        .reduce((sum, t) => (t.type === 'withdrawal' ? sum - t.amount : sum + t.amount), 0);
+    } else {
+      balanceRef.current = 0;
+    }
+  }, [transactions, watchedYear, watchedMonth]);
+
+  // Re-validate amount when type or date changes, but not on initial mount
   const mounted = useRef(false);
   useEffect(() => {
     if (!mounted.current) {
@@ -49,7 +84,7 @@ const TransactionForm = ({ onSubmit, balance }: ITransactionFormProps) => {
       return;
     }
     void trigger('amount');
-  }, [watchedType, trigger]);
+  }, [watchedType, watchedMonth, watchedYear, trigger]);
 
   const submit = useCallback(
     async ({ month, year, amount, type }: TTransactionFormValues) => {
