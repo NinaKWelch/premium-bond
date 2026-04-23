@@ -12,10 +12,10 @@ const HomePage = () => (
       <Stack spacing={4}>
         <Stack spacing={2}>
           <Typography variant="body1">
-            NS&I Premium Bonds don't pay interest — instead, each £1 bond is entered into a monthly
-            prize draw. The headline rate HMRC publishes is just an average across all holders. Your
-            actual return depends on how long your money was invested and which prizes you
-            personally won.
+            NS&I Premium Bonds don&apos;t pay interest — instead, each £1 bond is entered into a
+            monthly prize draw. The headline rate HMRC publishes is just an average across all
+            holders. Your actual return depends on how long your money was invested and which prizes
+            you personally won.
           </Typography>
           <Typography variant="body1">
             Use the quick estimator below for a rough figure, or{' '}
