@@ -16,7 +16,12 @@ interface IActivityListProps {
   prizes: TPrize[];
   onUpdateTransaction: (id: string, data: TNewTransaction) => Promise<void>;
   onDeleteTransaction: (id: string) => Promise<void>;
-  onUpdatePrize: (id: string, data: TNewPrize) => Promise<void>;
+  onUpdatePrize: (
+    id: string,
+    data: TNewPrize,
+    reinvested: boolean,
+    existingReinvestmentId: string | null,
+  ) => Promise<void>;
   onDeletePrize: (id: string) => Promise<void>;
 }
 
