@@ -15,7 +15,6 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { registerSchema, type TRegisterFormValues } from '#schemas/auth.schemas';
-import { clearGuestCookie } from '../../../app/actions';
 import { localBondsStore } from '#store/localBondsStore';
 import { addTransaction, addPrize } from '#api/bonds';
 
@@ -52,9 +51,16 @@ const RegisterForm = () => {
     const localTransactions = localBondsStore.getTransactions();
     const localPrizes = localBondsStore.getPrizes();
 
-    const result = await signIn('credentials', { email, password, redirect: false });
+    let result;
 
-    if (result.error) {
+    try {
+      result = await signIn('credentials', { email, password, redirect: false });
+    } catch {
+      // next-auth v5 beta sometimes throws even on successful sign-in
+      result = null;
+    }
+
+    if (result?.error) {
       setServerError('Account created but sign-in failed. Please sign in manually.');
       return;
     }
@@ -63,24 +69,26 @@ const RegisterForm = () => {
       const session = await getSession();
       const token = session?.backendToken ?? null;
 
-      try {
-        await Promise.all([
-          ...localTransactions.map(({ date, amount, type }) =>
-            addTransaction(token, { date, amount, type }),
-          ),
-          ...localPrizes.map(({ date, amount }) => addPrize(token, { date, amount })),
-        ]);
+      const results = await Promise.allSettled([
+        ...localTransactions.map(({ date, amount, type }) =>
+          addTransaction(token, { date, amount, type }),
+        ),
+        ...localPrizes.map(({ date, amount }) => addPrize(token, { date, amount })),
+      ]);
 
-        localBondsStore.clear();
-      } catch {
+      localBondsStore.clear();
+
+      const failed = results.filter((r) => r.status === 'rejected').length;
+
+      if (failed > 0) {
         setServerError(
-          'Account created, but your guest data could not be saved. Please add your entries again.',
+          `Account created, but ${failed.toString()} item(s) could not be migrated. Your other entries were saved.`,
         );
         return;
       }
     }
 
-    await clearGuestCookie();
+    router.refresh();
     router.push('/premium-bonds/interest-tracker');
   };
 

@@ -223,6 +223,28 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
     setResults(null);
   };
 
+  const handleClearAll = async () => {
+    if (isGuest) {
+      localBondsStore.clear();
+    } else {
+      const results = await Promise.allSettled([
+        ...transactions.map((t) => deleteTransaction(token, t.id)),
+        ...prizes.map((p) => deletePrize(token, p.id)),
+      ]);
+
+      const failed = results.filter((r) => r.status === 'rejected').length;
+
+      if (failed > 0) {
+        setErrorMessage(`${failed.toString()} item(s) could not be deleted. Please try again.`);
+        return;
+      }
+    }
+
+    setTransactions([]);
+    setPrizes([]);
+    setResults(null);
+  };
+
   const handleCalculate = async () => {
     setCalculating(true);
     try {
@@ -260,6 +282,7 @@ export const BondsProvider = ({ children }: { children: React.ReactNode }) => {
         handlePrizeSubmit,
         handlePrizeUpdate,
         handlePrizeDelete,
+        handleClearAll,
         handleCalculate,
         handlePrint,
       }}

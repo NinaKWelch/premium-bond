@@ -25,34 +25,27 @@ const NavMenu = () => {
   const activeTab = items.findIndex((item) => item.href === pathname);
 
   return (
-    <nav>
-      <Tabs
-        value={activeTab === -1 ? false : activeTab}
-        textColor="inherit"
-        variant="scrollable"
-        scrollButtons="auto"
-        slotProps={{ indicator: { style: { backgroundColor: 'white' } } }}
-        sx={{ minHeight: 0 }}
-      >
-        {items.map((item) => (
-          <Tab
-            key={item.href}
-            label={item.label}
-            href={item.href}
-            component="a"
-            sx={{
-              color: 'inherit',
-              opacity: 0.85,
-              textTransform: 'none',
-              fontSize: '0.95rem',
-              minHeight: 40,
-              py: 0.5,
-              '&.Mui-selected': { opacity: 1 },
-            }}
-          />
-        ))}
-      </Tabs>
-    </nav>
+    <Tabs
+      value={activeTab === -1 ? false : activeTab}
+      textColor="primary"
+      indicatorColor="primary"
+      sx={{ minHeight: 0 }}
+    >
+      {items.map((item) => (
+        <Tab
+          key={item.href}
+          label={item.label}
+          href={item.href}
+          component="a"
+          sx={{
+            textTransform: 'none',
+            fontSize: '0.95rem',
+            minHeight: 40,
+            py: 0.5,
+          }}
+        />
+      ))}
+    </Tabs>
   );
 };
 

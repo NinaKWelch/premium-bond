@@ -16,7 +16,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { loginSchema, type TLoginFormValues } from '#schemas/auth.schemas';
-import { continueAsGuest, clearGuestCookie } from '../../../app/actions';
+import { continueAsGuest } from '../../../app/actions';
 
 const LoginForm = () => {
   const router = useRouter();
@@ -33,12 +33,23 @@ const LoginForm = () => {
   const onSubmit = async (data: TLoginFormValues) => {
     setServerError(null);
 
-    const result = await signIn('credentials', { ...data, redirect: false });
+    let result;
+
+    try {
+      result = await signIn('credentials', { ...data, redirect: false });
+    } catch {
+      // next-auth v5 beta sometimes throws even on successful sign-in;
+      // attempt navigation and let the middleware redirect back if unauthenticated
+      router.refresh();
+      router.push('/premium-bonds/interest-tracker');
+
+      return;
+    }
 
     if (result.error) {
       setServerError('Invalid email or password');
     } else {
-      await clearGuestCookie();
+      router.refresh();
       router.push('/premium-bonds/interest-tracker');
     }
   };

@@ -16,20 +16,12 @@ const Header = () => {
   const { data: session } = useSession();
 
   return (
-    <AppBar position="static" className="print-hide">
-      <Toolbar sx={{ py: { xs: 1.5, md: 2 } }}>
-        <Container
-          maxWidth="md"
-          disableGutters
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'stretch',
-            gap: 0.5,
-          }}
-        >
-          {/* Title row */}
-          <Box
+    <>
+      <AppBar position="static" className="print-hide">
+        <Toolbar sx={{ py: { xs: 1.5, md: 2 } }}>
+          <Container
+            maxWidth="md"
+            disableGutters
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -44,21 +36,16 @@ const Header = () => {
               >
                 Premium Bonds Interest Tracker
               </Typography>
-              <Typography variant="body1" sx={{ mt: 0.5, display: { xs: 'none', md: 'block' } }}>
+              <Typography
+                variant="body1"
+                sx={{ mt: 0.5, display: { xs: 'none', md: 'block' }, opacity: 0.85 }}
+              >
                 Track your NS&amp;I Premium Bond investments and prizes to see the effective annual
                 return you are actually earning.
               </Typography>
             </Box>
 
-            {/* Profile icon or sign-in */}
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                flexShrink: 0,
-              }}
-            >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
               {session ? (
                 <>
                   <Typography
@@ -88,13 +75,20 @@ const Header = () => {
                 </Button>
               )}
             </Box>
-          </Box>
+          </Container>
+        </Toolbar>
+      </AppBar>
 
-          {/* Nav tabs */}
+      <Box
+        component="nav"
+        className="print-hide"
+        sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}
+      >
+        <Container maxWidth="md" disableGutters>
           <NavMenu />
         </Container>
-      </Toolbar>
-    </AppBar>
+      </Box>
+    </>
   );
 };
 

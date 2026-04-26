@@ -29,6 +29,7 @@ export interface IBondsContext {
     existingReinvestmentId: string | null,
   ) => Promise<void>;
   handlePrizeDelete: (id: string) => Promise<void>;
+  handleClearAll: () => Promise<void>;
   handleCalculate: () => Promise<void>;
   handlePrint: () => Promise<void>;
 }

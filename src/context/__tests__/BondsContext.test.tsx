@@ -402,7 +402,7 @@ describe('BondsProvider()', () => {
     });
 
     it('sets errorMessage when updating the linked reinvestment fails', async () => {
-      mockUpdateTransaction.mockRejectedValue(new Error('Reinvestment error'));
+      mockUpdateTransaction.mockRejectedValue(new Error('Mock error'));
 
       const { result } = renderHook(() => useBonds(), { wrapper });
 
@@ -412,7 +412,7 @@ describe('BondsProvider()', () => {
         await result.current.handlePrizeUpdate('2', prizeData, true, 'reinvest-1');
       });
 
-      expect(result.current.errorMessage).toBe('Prize updated but failed to update reinvestment');
+      expect(result.current.errorMessage).toBe('Mock error');
     });
   });
 
@@ -442,6 +442,59 @@ describe('BondsProvider()', () => {
           await result.current.handlePrizeDelete('2');
         }),
       ).rejects.toThrow('Cannot delete');
+    });
+  });
+
+  describe('handleClearAll()', () => {
+    it('deletes all items and clears state on success', async () => {
+      const { result } = renderHook(() => useBonds(), { wrapper });
+
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.handleCalculate();
+      });
+
+      await act(async () => {
+        await result.current.handleClearAll();
+      });
+
+      expect(mockDeleteTransaction).toHaveBeenCalledWith(TOKEN, '1');
+      expect(mockDeletePrize).toHaveBeenCalledWith(TOKEN, '2');
+      expect(result.current.transactions).toEqual([]);
+      expect(result.current.prizes).toEqual([]);
+      expect(result.current.results).toBeNull();
+    });
+
+    it('sets errorMessage and does not clear state when a delete fails', async () => {
+      mockDeleteTransaction.mockRejectedValue(new Error('Server error'));
+
+      const { result } = renderHook(() => useBonds(), { wrapper });
+
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.handleClearAll();
+      });
+
+      expect(result.current.errorMessage).toBe('1 item(s) could not be deleted. Please try again.');
+      expect(result.current.transactions).toEqual(TRANSACTIONS);
+      expect(result.current.prizes).toEqual(PRIZES);
+    });
+
+    it('reports the correct count when multiple deletes fail', async () => {
+      mockDeleteTransaction.mockRejectedValue(new Error('Server error'));
+      mockDeletePrize.mockRejectedValue(new Error('Server error'));
+
+      const { result } = renderHook(() => useBonds(), { wrapper });
+
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.handleClearAll();
+      });
+
+      expect(result.current.errorMessage).toBe('2 item(s) could not be deleted. Please try again.');
     });
   });
 

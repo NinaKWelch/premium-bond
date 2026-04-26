@@ -22,6 +22,7 @@ const GuestSaveBanner = () => (
         </Button>
       </Box>
     }
+    className="print-hide"
     sx={{ mt: 3 }}
   >
     Save your transactions and results permanently.
